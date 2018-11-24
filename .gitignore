@@ -27,3 +27,5 @@ qr_code-*.tar
 
 tags
 .projections.json
+
+.elixir_ls/
