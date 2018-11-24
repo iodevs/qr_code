@@ -7,17 +7,16 @@ defmodule QRCode.DataEncoding do
 
   @spec break_up_into_byte(String.t(), Version.t(), ErrorCorrection.level()) ::
           Result.t(String.t(), <<_::_*8>>)
-  def break_up_into_byte(codeword, version, level) when version <= 40 do
+  def byte_encode(codeword, version, level) when version <= 40 do
     codeword
     |> add_count_indicator(version)
     |> add_mode_indicator()
-    |> add_terminator(version, level)
-    |> add_more_zeros()
-    |> add_pad_bytes(version, level)
+    |> encode_codeword(codeword)
+    |> break_up_into_byte(version, level)
     |> (&{:ok, &1}).()
   end
 
-  def break_up_into_byte(version, _version, _level) when 40 < version do
+  def byte_encode(version, _version, _level) when 40 < version do
     {:error, "You have to use codewords length less than 2953 characters."}
   end
 
@@ -31,6 +30,17 @@ defmodule QRCode.DataEncoding do
 
   defp add_mode_indicator(codeword) do
     <<(<<0b0100::size(4)>>), codeword::bitstring>>
+  end
+
+  defp encode_codeword(prefix, codeword) do
+    <<prefix::bitstring, codeword::bitstring>>
+  end
+
+  defp break_up_into_byte(codeword, version, level) do
+    codeword
+    |> add_terminator(version, level)
+    |> add_more_zeros()
+    |> add_pad_bytes(version, level)
   end
 
   defp add_terminator(codeword, version, level) do
