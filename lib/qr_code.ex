@@ -1,0 +1,2 @@
+defmodule QRCode do
+end
