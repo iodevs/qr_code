@@ -3,6 +3,8 @@ defmodule QRCode.ByteMode do
   Byte mode character capacities table.
   """
 
+  alias QRCode.Version
+
   @level_L [
     {17, 1},
     {32, 2},
@@ -172,7 +174,7 @@ defmodule QRCode.ByteMode do
     {1273, 40}
   ]
 
-  @spec get_version(String.t(), integer()) :: Result.t(String.t(), integer())
+  @spec get_version(String.t(), Version.t()) :: Result.t(String.t(), integer())
   def get_version(level, size_of_bytes) do
     case level do
       "L" -> {:ok, find_version(@level_L, size_of_bytes)}
