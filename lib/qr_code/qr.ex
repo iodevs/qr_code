@@ -34,8 +34,11 @@ defmodule QRCode.QR do
   defguard level(lvl) when lvl in @levels
   defguard version(v) when v in 1..40
 
-  @spec create(String.t(), level()) :: t()
+  @spec create(String.t(), level()) :: Result.t(String.t(), t())
   def create(orig, level \\ :low) when level(level) do
     %__MODULE__{orig: orig, ecc_level: level}
+    |> QRCode.ByteMode.put_version()
+    |> Result.map(&QRCode.DataEncoding.byte_encode/1)
+    |> Result.map(&QRCode.ErrorCorrection.put_ecc_groups/1)
   end
 end
