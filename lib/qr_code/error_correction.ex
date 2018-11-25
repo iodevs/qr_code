@@ -3,9 +3,8 @@ defmodule QRCode.ErrorCorrection do
   Error correction code words and block information.
   """
 
-  @type level() :: :low | :medium | :quartile | :high
-
-  @levels [:low, :medium, :quartile, :high]
+  alias QRCode.QR
+  import QRCode.QR, only: [level: 1, version: 1]
 
   @ecc_table [
     [
@@ -250,18 +249,61 @@ defmodule QRCode.ErrorCorrection do
     ]
   ]
 
-  @spec total_data_codewords(QRCode.Version.t(), level()) :: integer()
-  def total_data_codewords(version, level)
-      when version >= 1 and version <= 40 and level in @levels do
+  @spec total_data_codewords(QR.t()) :: integer()
+  def total_data_codewords(%QR{version: version, ecc_level: level})
+      when version(version) and level(level) do
+    version
+    |> get_ecc_row(level)
+    |> compute_total_data_codewords()
+  end
+
+  @spec put_ecc_groups(QR.t()) :: QR.t()
+  def put_ecc_groups(%QR{encoded: data, version: version, ecc_level: level} = qr)
+      when version(version) and level(level) do
+    {_, blocks_in_group1, codewords_in_group1, blocks_in_group2, codewords_in_group2} =
+      get_ecc_row(version, level)
+
+    bytes_in_group1 = blocks_in_group1 * codewords_in_group1
+    bytes_in_group2 = blocks_in_group2 * codewords_in_group2
+
+    <<data_group1::binary-size(bytes_in_group1), data_group2::binary-size(bytes_in_group2)>> =
+      data
+
+    %{
+      qr
+      | groups:
+          {group(data_group1, blocks_in_group1, codewords_in_group1),
+           group(data_group2, blocks_in_group2, codewords_in_group2)}
+    }
+  end
+
+  defp get_ecc_row(version, level) do
     @ecc_table
     |> Enum.at(version - 1)
     |> Keyword.get(level)
-    |> compute_total_data_codewords()
   end
 
   defp compute_total_data_codewords(
          {_, blocks_in_group1, codewords_in_group1, blocks_in_group2, codewords_in_group2}
        ) do
     blocks_in_group1 * codewords_in_group1 + blocks_in_group2 * codewords_in_group2
+  end
+
+  defp group("", 0, _codewords) do
+    []
+  end
+
+  defp group(data, blocks, codewords) do
+    <<block_data::binary-size(codewords), rest::binary>> = data
+
+    [block(block_data, codewords) | group(rest, blocks - 1, codewords)]
+  end
+
+  defp block("", 0) do
+    []
+  end
+
+  defp block(<<codeword::binary-size(1), rest::binary>>, codewords) do
+    [codeword | block(rest, codewords - 1)]
   end
 end
