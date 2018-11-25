@@ -7,13 +7,14 @@ defmodule QRCode.QR do
   @type version() :: 1..40
   @type mode() :: :numeric | :alphanumeric | :byte | :kanji | :eci
   @type mask_num() :: 1..7
+  @type groups() :: {[[], ...], [[]]}
   @type t() :: %__MODULE__{
           orig: ExMaybe.t(String.t()),
           encoded: ExMaybe.t(binary()),
           version: ExMaybe.t(version()),
           ecc_level: level(),
           mode: mode(),
-          groups: tuple(),
+          groups: ExMaybe.t(groups())
           matrix: MatrixReloaded.Matrix.t(),
           mask_num: mask_num()
         }
@@ -32,7 +33,7 @@ defmodule QRCode.QR do
             version: nil,
             ecc_level: :low,
             mode: :byte,
-            groups: {[], []},
+            groups: nil
             matrix: [[]],
             mask_num: 1
 
