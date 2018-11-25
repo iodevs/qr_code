@@ -3,21 +3,23 @@ defmodule QRCode.DataEncoding do
   Encoding codewords for Byte mode.
   """
 
-  alias QRCode.{ErrorCorrection, Version}
+  alias QRCode.{ErrorCorrection, QR}
+  import QRCode.QR, only: [level: 1]
 
-  @spec break_up_into_byte(String.t(), Version.t(), ErrorCorrection.level()) ::
-          Result.t(String.t(), <<_::_*8>>)
-  def byte_encode(codeword, version, level) when version <= 40 do
-    codeword
-    |> add_count_indicator(version)
-    |> add_mode_indicator()
-    |> encode_codeword(codeword)
-    |> break_up_into_byte(version, level)
-    |> (&{:ok, &1}).()
-  end
+  @spec byte_encode(QR.t()) :: QR.t()
+  def byte_encode(%QR{orig: codeword, version: version, ecc_level: level} = qr)
+      when level(level) do
+    prefix =
+      codeword
+      |> add_count_indicator(version)
+      |> add_mode_indicator()
 
-  def byte_encode(version, _version, _level) when 40 < version do
-    {:error, "You have to use codewords length less than 2953 characters."}
+    encoded =
+      codeword
+      |> encode_codeword(prefix)
+      |> break_up_into_byte(qr)
+
+    %{qr | encoded: encoded}
   end
 
   defp add_count_indicator(codeword, version) when version < 10 do
@@ -32,26 +34,25 @@ defmodule QRCode.DataEncoding do
     <<(<<0b0100::size(4)>>), codeword::bitstring>>
   end
 
-  defp encode_codeword(prefix, codeword) do
+  defp encode_codeword(codeword, prefix) do
     <<prefix::bitstring, codeword::bitstring>>
   end
 
-  defp break_up_into_byte(codeword, version, level) do
+  defp break_up_into_byte(codeword, qr) do
     codeword
-    |> add_terminator(version, level)
+    |> add_terminator(qr)
     |> add_more_zeros()
-    |> add_pad_bytes(version, level)
+    |> add_pad_bytes(qr)
   end
 
-  defp add_terminator(codeword, version, level) do
-    total_number = required_number(version, level)
+  defp add_terminator(codeword, qr) do
+    diff = diff_total_number_and_bit_size_cw(codeword, qr)
 
-    case abs(total_number - bit_size(codeword)) do
-      1 -> <<codeword::bitstring, (<<0b0::size(1)>>)>>
-      2 -> <<codeword::bitstring, (<<0b00::size(2)>>)>>
-      3 -> <<codeword::bitstring, (<<0b000::size(3)>>)>>
-      4 -> <<codeword::bitstring, (<<0b0000::size(4)>>)>>
-      _ -> codeword
+    case abs(diff) do
+      1 -> <<codeword::bitstring, (<<0::size(1)>>)>>
+      2 -> <<codeword::bitstring, (<<0::size(2)>>)>>
+      3 -> <<codeword::bitstring, (<<0::size(3)>>)>>
+      _ -> <<codeword::bitstring, (<<0::size(4)>>)>>
     end
   end
 
@@ -60,17 +61,18 @@ defmodule QRCode.DataEncoding do
 
     case reminder do
       0 -> codeword
-      _ -> <<codeword::bitstring, (<<reminder::size(reminder)>>)>>
+      _ -> <<codeword::bitstring, (<<0::size(reminder)>>)>>
     end
   end
 
-  defp add_pad_bytes(codeword, version, level) do
-    fill_to_max =
-      required_number(version, level)
-      |> Kernel.-(bit_size(codeword))
-      |> Kernel.rem(8)
+  defp add_pad_bytes(codeword, qr) do
+    is_string_long_enough = diff_total_number_and_bit_size_cw(codeword, qr)
 
-    case fill_to_max do
+    fill_to_max =
+      is_string_long_enough
+      |> div(8)
+
+    case is_string_long_enough do
       0 -> codeword
       _ -> <<codeword::bitstring, add_specification(fill_to_max)::bitstring>>
     end
@@ -85,7 +87,7 @@ defmodule QRCode.DataEncoding do
     end)
   end
 
-  defp required_number(version, level) do
-    ErrorCorrection.total_data_codewords(version, level) * 8
+  defp diff_total_number_and_bit_size_cw(codeword, qr) do
+    ErrorCorrection.total_data_codewords(qr) * 8 - bit_size(codeword)
   end
 end
