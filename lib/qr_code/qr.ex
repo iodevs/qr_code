@@ -36,6 +36,6 @@ defmodule QRCode.QR do
 
   @spec create(String.t(), level()) :: t()
   def create(orig, level \\ :low) when level(level) do
-    %QR{orig: orig, ecc_level: level}
+    %__MODULE__{orig: orig, ecc_level: level}
   end
 end
