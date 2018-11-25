@@ -3,5 +3,4 @@ defmodule QRCode.Version do
   QR code version
   """
 
-  @type t() :: 1..40
 end
