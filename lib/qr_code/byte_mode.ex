@@ -3,9 +3,9 @@ defmodule QRCode.ByteMode do
   Byte mode character capacities table.
   """
 
-  alias QRCode.Version
+  alias QRCode.QR
 
-  @level_L [
+  @level_low [
     {17, 1},
     {32, 2},
     {53, 3},
@@ -47,7 +47,7 @@ defmodule QRCode.ByteMode do
     {2809, 39},
     {2953, 40}
   ]
-  @level_M [
+  @level_medium [
     {14, 1},
     {26, 2},
     {42, 3},
@@ -89,7 +89,7 @@ defmodule QRCode.ByteMode do
     {2213, 39},
     {2331, 40}
   ]
-  @level_Q [
+  @level_quartile [
     {11, 1},
     {20, 2},
     {32, 3},
@@ -131,7 +131,7 @@ defmodule QRCode.ByteMode do
     {1579, 39},
     {1663, 40}
   ]
-  @level_H [
+  @level_high [
     {7, 1},
     {14, 2},
     {24, 3},
@@ -174,23 +174,37 @@ defmodule QRCode.ByteMode do
     {1273, 40}
   ]
 
-  @spec get_version(String.t(), Version.t()) :: Result.t(String.t(), integer())
-  def get_version(level, size_of_bytes) do
-    case level do
-      "L" -> {:ok, find_version(@level_L, size_of_bytes)}
-      "M" -> {:ok, find_version(@level_M, size_of_bytes)}
-      "Q" -> {:ok, find_version(@level_Q, size_of_bytes)}
-      "H" -> {:ok, find_version(@level_H, size_of_bytes)}
-      _ -> {:error, "Bad level."}
-    end
+  @spec put_version(QR.t()) :: Result.t(String.t(), QR.t())
+  def put_version(%QR{orig: orig, ecc_level: :low} = qr) do
+    @level_low
+    |> find_version(byte_size(orig))
+    |> Result.map(fn ver -> %{qr | version: ver} end)
+  end
+
+  def put_version(%QR{orig: orig, ecc_level: :medium} = qr) do
+    @level_medium
+    |> find_version(byte_size(orig))
+    |> Result.map(fn ver -> %{qr | version: ver} end)
+  end
+
+  def put_version(%QR{orig: orig, ecc_level: :quartile} = qr) do
+    @level_quartile
+    |> find_version(byte_size(orig))
+    |> Result.map(fn ver -> %{qr | version: ver} end)
+  end
+
+  def put_version(%QR{orig: orig, ecc_level: :high} = qr) do
+    @level_high
+    |> find_version(byte_size(orig))
+    |> Result.map(fn ver -> %{qr | version: ver} end)
   end
 
   defp find_version(level, bytes) do
-    Enum.reduce_while(level, bytes, fn {max, ver}, acc ->
-      if max < bytes do
-        {:cont, acc}
+    Enum.reduce_while(level, {:error, "Input string can't be encoded"}, fn {max, ver}, acc ->
+      if bytes <= max do
+        {:halt, {:ok, ver}}
       else
-        {:halt, ver}
+        {:cont, acc}
       end
     end)
   end
