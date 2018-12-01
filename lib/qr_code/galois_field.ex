@@ -3,7 +3,7 @@ defmodule QRCode.GaloisField do
   Galios Field GF(256) functions.
   """
 
-  @type value()() :: 1..255
+  @type value() :: 1..255
   @type alpha() :: 0..254
 
   # {index, aplha}
