@@ -3,6 +3,9 @@ defmodule QRCode.GaloisField do
   Galios Field GF(256) functions.
   """
 
+  @type value()() :: 1..255
+  @type alpha() :: 0..254
+
   # {index, aplha}
   @gf_table [
     {1, 0},
@@ -268,7 +271,7 @@ defmodule QRCode.GaloisField do
       iex> QRCode.GaloisField.to_i(1)
       2
   """
-  @spec to_i(integer) :: integer
+  @spec to_i(alpha()) :: value()
   def to_i(alpha) when alpha in 0..254 do
     @gf_table
     |> Enum.find(fn {_i, a} -> alpha == a end)
@@ -281,7 +284,7 @@ defmodule QRCode.GaloisField do
       iex> QRCode.GaloisField.to_a(2)
       1
   """
-  @spec to_a(integer) :: integer
+  @spec to_a(value()) :: alpha()
   def to_a(integer) when integer in 1..255 do
     @gf_table
     |> Enum.find(fn {i, _a} -> integer == i end)

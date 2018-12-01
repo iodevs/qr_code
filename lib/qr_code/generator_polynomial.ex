@@ -20,12 +20,16 @@ defmodule QRCode.GeneratorPolynomial do
 
   use Bitwise
 
+  @type degree() :: 1..254
+  @type polynomial() :: [GField.alpha()]
+
   @doc """
   Returns generator polynomials in alpha exponent for given error code length.
   Example:
       iex> QRCode.GeneratorPolynomial.create(10)
       [0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45]
   """
+  @spec create(degree()) :: polynomial()
   def create(degree) when is_integer(degree) and degree in 1..254 do
     degree
     |> roots()
