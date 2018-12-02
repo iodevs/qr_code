@@ -136,8 +136,7 @@ defmodule QRCode.Matrix do
   end
 
   @doc """
-  Returns the size (dimensions) of the matrix. The return value is a
-  tuple of {rows, cols}.
+  The size (dimensions) of the matrix.
 
   Returns tuple of {row_size, col_size}.
 
