@@ -206,7 +206,7 @@ defmodule QRCode.Matrix do
                 Enum.at(submatrix, i - from_row) |> Enum.at(j - from_col)
 
               false ->
-                Enum.at(row, i)
+                Enum.at(row, j)
             end
           end)
 
