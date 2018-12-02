@@ -168,7 +168,9 @@ defmodule QRCode.Matrix do
 
       false ->
         {:error,
-         "Size of submatrix is different from {#{to_row - from_row + 1}, #{to_col - from_col + 1}}!"}
+         "Size {#{row_size}, #{col_size}} of submatrix is different from calculated indices {#{
+           to_row - from_row + 1
+         }, #{to_col - from_col + 1}}!"}
     end
   end
 
