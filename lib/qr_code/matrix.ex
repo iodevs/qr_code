@@ -126,13 +126,13 @@ defmodule QRCode.Matrix do
 
   ##  Example:
 
-      iex> QRCode.Matrix.new(4) |> Result.and_then(&QRCode.Matrix.update_col(&1, 1, {0, 2}, [1, 2, 3]))
+      iex> QRCode.Matrix.new(4) |> Result.and_then(&QRCode.Matrix.update_col(&1, 1, {0, 2}, [[1], [2], [3]]))
       {:ok, [[0, 1, 0, 0], [0, 2, 0, 0], [0, 3, 0, 0], [0, 0, 0, 0]]}
 
   """
   @spec update_col(matrix, pos_integer, index, element) :: Result.t(String.t(), matrix)
   def update_col(matrix, col, {from_row, to_row}, submatrix) do
-    update(matrix, {from_row, col}, {to_row, col}, Enum.chunk_every(submatrix, 1))
+    update(matrix, {from_row, col}, {to_row, col}, submatrix)
   end
 
   @doc """
