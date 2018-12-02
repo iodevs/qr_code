@@ -99,33 +99,55 @@ defmodule QRCode.Vector do
   end
 
   @doc """
-  Addition of two a row vectors.
+  Addition of two a row vectors. These two vectors must have a same size.
+  Otherwise you get error message.
+
+  Returns result, it means either tuple of {:ok, vector} or {:error, "msg"}.
 
   ## Examples
 
       iex> QRCode.Vector.add([1, 2, 3], [4, 5, 6])
-      [5, 7, 9]
+      {:ok, [5, 7, 9]}
 
   """
 
-  @spec add(vector, vector) :: vector()
+  @spec add(vector, vector) :: Result.t(String.t(), vector())
   def add(vec1, vec2) do
-    List.zip([vec1, vec2]) |> Enum.map(fn {x, y} -> x + y end)
+    case size(vec1) == size(vec2) do
+      true ->
+        List.zip([vec1, vec2])
+        |> Enum.map(fn {x, y} -> x + y end)
+        |> (&{:ok, &1}).()
+
+      false ->
+        {:error, "Size both vectors must be same!"}
+    end
   end
 
   @doc """
-  Subtraction of two a row vectors.
+  Subtraction of two a row vectors. These two vectors must have a same size.
+  Otherwise you get error message.
+
+  Returns result, it means either tuple of {:ok, vector} or {:error, "msg"}.
 
   ## Examples
 
       iex> QRCode.Vector.sub([1, 2, 3], [4, 5, 6])
-      [-3, -3, -3]
+      {:ok, [-3, -3, -3]}
 
   """
 
-  @spec sub(vector, vector) :: vector()
+  @spec sub(vector, vector) :: Result.t(String.t(), vector())
   def sub(vec1, vec2) do
-    List.zip([vec1, vec2]) |> Enum.map(fn {x, y} -> x - y end)
+    case size(vec1) == size(vec2) do
+      true ->
+        List.zip([vec1, vec2])
+        |> Enum.map(fn {x, y} -> x - y end)
+        |> (&{:ok, &1}).()
+
+      false ->
+        {:error, "Size both vectors must be same!"}
+    end
   end
 
   @doc """
