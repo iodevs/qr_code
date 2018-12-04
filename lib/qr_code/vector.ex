@@ -51,33 +51,24 @@ defmodule QRCode.Vector do
   end
 
   @doc """
-  Convert a row vector to column.
+  Convert (transpose) a row vector to column  and vice versa.
 
   ## Examples
 
-      iex> QRCode.Vector.row(3) |> QRCode.Vector.row_to_col()
-      [[0], [0], [0]]
+      iex> QRCode.Vector.transpose([1, 2, 3])
+      [[1], [2], [3]]
+
+      iex(23)> QRCode.Vector.transpose([[1], [2], [3]])
+      [1, 2, 3]
 
   """
-
-  @spec row_to_col(vector) :: vector()
-  def row_to_col(vec) do
-    Enum.chunk_every(vec, 1)
+  @spec transpose(vector) :: vector()
+  def transpose([hd | _] = vec) when is_list(hd) do
+    List.flatten(vec)
   end
 
-  @doc """
-  Convert a column vector to row.
-
-  ## Examples
-
-      iex> QRCode.Vector.col(3) |> QRCode.Vector.col_to_row()
-      [0, 0, 0]
-
-  """
-
-  @spec col_to_row(vector) :: vector()
-  def col_to_row(vec) do
-    List.flatten(vec)
+  def transpose(vec) do
+    Enum.chunk_every(vec, 1)
   end
 
   @doc """
