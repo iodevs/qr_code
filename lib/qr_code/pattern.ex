@@ -146,40 +146,38 @@ defmodule QRCode.Pattern do
     positions
     |> Enum.drop(-1)
     |> generate_positions(6)
-    |> Enum.map(fn {row_pos, col_pos} ->
+    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
       and_then2(
-        matrix,
+        acc,
         alignment(),
         &Matrix.update(&1, {row_pos - 2, col_pos - 2}, {row_pos + 2, col_pos + 2}, &2)
       )
     end)
-    |> List.first()
   end
 
   defp add_aligments_to_vertical_timing(matrix, positions) do
     positions
     |> Enum.drop(-1)
     |> generate_positions(6)
-    |> Enum.map(fn {row_pos, col_pos} ->
+    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
       and_then2(
-        matrix,
+        acc,
         alignment(),
-        &Matrix.update(&1, {col_pos - 2, row_pos - 2}, {col_pos + 2, row_pos + 2}, &2)
+        &Matrix.update(&1, {col_pos, row_pos - 2}, {col_pos + 4, row_pos + 2}, &2)
       )
     end)
-    |> List.first()
   end
 
   defp add_aligments_to_matrix(matrix, positions) do
     positions
     |> generate_positions()
-    |> Enum.map(fn {row_pos, col_pos} ->
+    |> IO.inspect()
+    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
       and_then2(
-        matrix,
+        acc,
         alignment(),
-        &Matrix.update(&1, {row_pos - 2, col_pos - 2}, {row_pos + 2, col_pos + 2}, &2)
+        &Matrix.update(&1, {row_pos, col_pos - 2}, {row_pos + 4, col_pos + 2}, &2)
       )
     end)
-    |> List.first()
   end
 end
