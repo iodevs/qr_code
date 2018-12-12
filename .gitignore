@@ -24,6 +24,7 @@ qr_code-*.tar
 
 .envs
 .vimrc
+tmp/
 
 tags
 .projections.json

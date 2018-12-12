@@ -45,6 +45,18 @@ defmodule QRCode.Pattern do
     |> add_dark_module(version)
   end
 
+  def save_csv(version) do
+    {_, mat} = qr_matrix(version)
+
+    f = File.open!("tmp/qr_code.csv", [:write])
+
+    mat
+    |> CSVLixir.write()
+    |> Enum.each(&IO.write(f, &1))
+
+    File.close(f)
+  end
+
   defp add_finders(matrix, version) do
     matrix
     |> and_then2(finder(), &Matrix.update(&1, {0, 0}, {6, 6}, &2))
@@ -163,7 +175,7 @@ defmodule QRCode.Pattern do
       and_then2(
         acc,
         alignment(),
-        &Matrix.update(&1, {col_pos, row_pos - 2}, {col_pos + 4, row_pos + 2}, &2)
+        &Matrix.update(&1, {col_pos - 2, row_pos - 2}, {col_pos + 2, row_pos + 2}, &2)
       )
     end)
   end
@@ -176,7 +188,7 @@ defmodule QRCode.Pattern do
       and_then2(
         acc,
         alignment(),
-        &Matrix.update(&1, {row_pos, col_pos - 2}, {row_pos + 4, col_pos + 2}, &2)
+        &Matrix.update(&1, {row_pos - 2, col_pos - 2}, {row_pos + 2, col_pos + 2}, &2)
       )
     end)
   end
