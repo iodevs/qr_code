@@ -183,7 +183,6 @@ defmodule QRCode.Pattern do
   defp add_aligments_to_matrix(matrix, positions) do
     positions
     |> generate_positions()
-    |> IO.inspect()
     |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
       and_then2(
         acc,

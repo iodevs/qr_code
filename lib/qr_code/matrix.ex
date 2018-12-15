@@ -68,7 +68,14 @@ defmodule QRCode.Matrix do
   ##  Example:
 
       iex> QRCode.Matrix.new(4) |> Result.and_then(&QRCode.Matrix.update(&1, {1,2}, {2,3}, [[1,2],[3,4]]))
-      {:ok, [[0, 0, 0, 0], [0, 0, 1, 2], [0, 0, 3, 4], [0, 0, 0, 0]]}
+      {:ok,
+        [
+          [0, 0, 0, 0],
+          [0, 0, 1, 2],
+          [0, 0, 3, 4],
+          [0, 0, 0, 0]
+        ]
+      }
 
   """
   @spec update(matrix, index, index, element) :: Result.t(String.t(), matrix)
@@ -89,7 +96,13 @@ defmodule QRCode.Matrix do
   ##  Example:
 
       iex> QRCode.Matrix.new(3) |> Result.and_then(&QRCode.Matrix.update_element(&1, 1, 1, -1))
-      {:ok, [[0, 0, 0], [0, -1, 0], [0, 0, 0]]}
+      {:ok,
+        [
+          [0, 0, 0],
+          [0, -1, 0],
+          [0, 0, 0]
+        ]
+      }
 
   """
   @spec update_element(matrix, pos_integer, pos_integer, number) :: Result.t(String.t(), matrix)
@@ -107,8 +120,16 @@ defmodule QRCode.Matrix do
 
   ##  Example:
 
-      iex> QRCode.Matrix.new(4) |> Result.and_then(&QRCode.Matrix.update_row(&1, 3, {0, 2}, [1, 2, 3]))
-      {:ok, [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [1, 2, 3, 0]]}
+      iex> {:ok, mat} = QRCode.Matrix.new(4)
+      iex> QRCode.Matrix.update_row(mat, 3, {0, 2}, [1, 2, 3])
+      {:ok,
+        [
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [1, 2, 3, 0]
+        ]
+      }
 
   """
   @spec update_row(matrix, pos_integer, index, element) :: Result.t(String.t(), matrix)
@@ -126,13 +147,65 @@ defmodule QRCode.Matrix do
 
   ##  Example:
 
-      iex> QRCode.Matrix.new(4) |> Result.and_then(&QRCode.Matrix.update_col(&1, 1, {0, 2}, [[1], [2], [3]]))
-      {:ok, [[0, 1, 0, 0], [0, 2, 0, 0], [0, 3, 0, 0], [0, 0, 0, 0]]}
+      iex> {:ok, mat} = QRCode.Matrix.new(4)
+      iex> QRCode.Matrix.update_col(mat, 1, {0, 2}, [[1], [2], [3]])
+      {:ok,
+        [
+          [0, 1, 0, 0],
+          [0, 2, 0, 0],
+          [0, 3, 0, 0],
+          [0, 0, 0, 0]
+        ]
+      }
 
   """
   @spec update_col(matrix, pos_integer, index, element) :: Result.t(String.t(), matrix)
   def update_col(matrix, col, {from_row, to_row}, submatrix) do
     update(matrix, {from_row, col}, {to_row, col}, submatrix)
+  end
+
+  @doc """
+  Updates the matrix by given a submatrices. The positions (or locations) of these
+  submatrices are given by list of indices. Index of the individual submatrices is
+  tuple of two numbers. These two numbers are row and column of matrix where the
+  submatrices will be located. All submatrices must have same size (dimension).
+
+  Returns result, it means either tuple of {:ok, matrix} or {:error, "msg"}.
+
+  ##  Example:
+
+      iex> mat = QRCode.Matrix.new(5)
+      iex> sub_mat = QRCode.Matrix.new(2,1)
+      iex> positions = [{0,0}, {3, 3}]
+      iex> QRCode.Matrix.update_map(mat, positions, sub_mat)
+      {:ok,
+        [
+          [1, 1, 0, 0, 0],
+          [1, 1, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [0, 0, 0, 1, 1],
+          [0, 0, 0, 1, 1]
+        ]
+      }
+
+  """
+  @spec update_map(matrix, list(index), {:ok, element}) :: Result.t(String.t(), matrix)
+  def update_map(matrix, positions, submatrix) do
+    {row, col, check_size} = check_size(matrix, submatrix, positions)
+
+    case check_size do
+      true ->
+        Enum.reduce(positions, matrix, fn {row_pos, col_pos}, acc ->
+          and_then2(
+            acc,
+            submatrix,
+            &update(&1, {row_pos, col_pos}, {row_pos + row - 1, col_pos + col - 1}, &2)
+          )
+        end)
+
+      false ->
+        {:error, "Bad value of position {#{row}, #{col}}. Submatrix is out of matrix!"}
+    end
   end
 
   @doc """
@@ -214,5 +287,29 @@ defmodule QRCode.Matrix do
           row
       end
     end)
+  end
+
+  defp and_then2({:ok, val1}, {:ok, val2}, f) when is_function(f, 2) do
+    f.(val1, val2)
+  end
+
+  defp and_then2({:error, _} = result, _, _f), do: result
+  defp and_then2(_, {:error, _} = result, _f), do: result
+
+  defp check_size(matrix, submatrix, positions) do
+    {rm, cm} = matrix |> Result.and_then(&size(&1))
+    {rs, cs} = submatrix |> Result.and_then(&size(&1))
+
+    Enum.reduce_while(
+      positions,
+      {rs, cs, true},
+      fn {row_pos, col_pos}, acc ->
+        if rs + row_pos <= rm and cs + col_pos <= cm do
+          {:cont, acc}
+        else
+          {:halt, {row_pos, col_pos, false}}
+        end
+      end
+    )
   end
 end
