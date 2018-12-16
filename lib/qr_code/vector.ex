@@ -45,9 +45,9 @@ defmodule QRCode.Vector do
 
   """
 
-  @spec col(pos_integer, number) :: vector()
+  @spec col(pos_integer, number) :: [vector()]
   def col(size, val \\ 0) do
-    List.duplicate(val, size) |> Enum.chunk_every(1)
+    val |> List.duplicate(size) |> Enum.chunk_every(1)
   end
 
   @doc """
@@ -104,14 +104,13 @@ defmodule QRCode.Vector do
 
   @spec add(vector, vector) :: Result.t(String.t(), vector())
   def add(vec1, vec2) do
-    case size(vec1) == size(vec2) do
-      true ->
-        List.zip([vec1, vec2])
-        |> Enum.map(fn {x, y} -> x + y end)
-        |> (&{:ok, &1}).()
-
-      false ->
-        {:error, "Size both vectors must be same!"}
+    if size(vec1) == size(vec2) do
+      [vec1, vec2]
+      |> List.zip()
+      |> Enum.map(fn {x, y} -> x + y end)
+      |> Result.ok()
+    else
+      Result.error("Size both vectors must be same!")
     end
   end
 
@@ -130,14 +129,13 @@ defmodule QRCode.Vector do
 
   @spec sub(vector, vector) :: Result.t(String.t(), vector())
   def sub(vec1, vec2) do
-    case size(vec1) == size(vec2) do
-      true ->
-        List.zip([vec1, vec2])
-        |> Enum.map(fn {x, y} -> x - y end)
-        |> (&{:ok, &1}).()
-
-      false ->
-        {:error, "Size both vectors must be same!"}
+    if size(vec1) == size(vec2) do
+      [vec1, vec2]
+      |> List.zip()
+      |> Enum.map(fn {x, y} -> x - y end)
+      |> Result.ok()
+    else
+      Result.error("Size both vectors must be same!")
     end
   end
 
@@ -156,15 +154,14 @@ defmodule QRCode.Vector do
 
   @spec dot(vector, vector) :: Result.t(String.t(), number)
   def dot(vec1, vec2) do
-    case size(vec1) == size(vec2) do
-      true ->
-        List.zip([vec1, vec2])
-        |> Enum.map(fn {x, y} -> x * y end)
-        |> Enum.sum()
-        |> (&{:ok, &1}).()
-
-      false ->
-        {:error, "Size both vectors must be same!"}
+    if size(vec1) == size(vec2) do
+      [vec1, vec2]
+      |> List.zip()
+      |> Enum.map(fn {x, y} -> x * y end)
+      |> Enum.sum()
+      |> Result.ok()
+    else
+      Result.error("Size both vectors must be same!")
     end
   end
 
