@@ -37,7 +37,7 @@ defmodule QRCode.Matrix do
       _r <- 1..rows,
       do: make_row(cols, val)
     )
-    |> (&{:ok, &1}).()
+    |> Result.ok()
   end
 
   def new(rows, val) when rows > 0 do
@@ -45,15 +45,15 @@ defmodule QRCode.Matrix do
       _r <- 1..rows,
       do: make_row(rows, val)
     )
-    |> (&{:ok, &1}).()
+    |> Result.ok()
   end
 
   def new({_rows, _cols}, _val) do
-    {:error, "It is not possible create the matrix with negative row or column!"}
+    Result.error("It is not possible create the matrix with negative row or column!")
   end
 
   def new(_rows, _val) do
-    {:error, "It is not possible create square matrix with negative row or column!"}
+    Result.error("It is not possible create square matrix with negative row or column!")
   end
 
   @doc """
@@ -189,22 +189,20 @@ defmodule QRCode.Matrix do
       }
 
   """
-  @spec update_map(matrix, list(index), matrix) :: Result.t(String.t(), matrix)
+  @spec update_map(matrix, list(index), {:ok, element}) :: Result.t(String.t(), matrix)
   def update_map(matrix, positions, submatrix) do
     {row, col, check_size} = and_then2(matrix, submatrix, &check_size(&1, &2, positions))
 
-    case check_size do
-      true ->
-        Enum.reduce(positions, matrix, fn {row_pos, col_pos}, acc ->
-          and_then2(
-            acc,
-            submatrix,
-            &update(&1, {row_pos, col_pos}, {row_pos + row - 1, col_pos + col - 1}, &2)
-          )
-        end)
-
-      false ->
-        {:error, "Bad value of position {#{row}, #{col}}. Submatrix is out of matrix!"}
+    if check_size do
+      Enum.reduce(positions, matrix, fn {row_pos, col_pos}, acc ->
+        and_then2(
+          acc,
+          submatrix,
+          &update(&1, {row_pos, col_pos}, {row_pos + row - 1, col_pos + col - 1}, &2)
+        )
+      end)
+    else
+      Result.error("Bad value of position {#{row}, #{col}}. Submatrix is out of matrix!")
     end
   end
 
@@ -232,18 +230,17 @@ defmodule QRCode.Matrix do
          submatrix
        ) do
     {row_size, col_size} = size(submatrix)
+    calculated_row_size = to_row - from_row + 1
+    calculated_col_size = to_col - from_col + 1
 
-    check_size = to_row - from_row + 1 == row_size and to_col - from_col + 1 == col_size
-
-    case check_size do
-      true ->
-        {:ok, matrix}
-
-      false ->
-        {:error,
-         "Size {#{row_size}, #{col_size}} of submatrix is different from calculated indices {#{
-           to_row - from_row + 1
-         }, #{to_col - from_col + 1}}!"}
+    if calculated_row_size == row_size and calculated_col_size == col_size do
+      Result.ok(matrix)
+    else
+      Result.error(
+        "Size {#{row_size}, #{col_size}} of submatrix is different from calculated indices {#{
+          calculated_row_size
+        }, #{calculated_col_size}}!"
+      )
     end
   end
 
@@ -254,14 +251,10 @@ defmodule QRCode.Matrix do
     {row_size, col_size} = size(matrix)
     {row_size_sub, col_size_sub} = size(submatrix)
 
-    check_size = row_size_sub <= row_size and col_size_sub <= col_size
-
-    case check_size do
-      true ->
-        {:ok, matrix}
-
-      false ->
-        {:error, "Size of submatrix is bigger than size of matrix!"}
+    if row_size_sub <= row_size and col_size_sub <= col_size do
+      Result.ok(matrix)
+    else
+      Result.error("Size of submatrix is bigger than size of matrix!")
     end
   end
 
@@ -269,22 +262,18 @@ defmodule QRCode.Matrix do
     matrix
     |> Enum.with_index()
     |> Enum.map(fn {row, i} ->
-      case i in from_row..to_row do
-        true ->
-          row
-          |> Enum.with_index()
-          |> Enum.map(fn {_col, j} ->
-            case j in from_col..to_col do
-              true ->
-                Enum.at(submatrix, i - from_row) |> Enum.at(j - from_col)
-
-              false ->
-                Enum.at(row, j)
-            end
-          end)
-
-        false ->
-          row
+      if i in from_row..to_row do
+        row
+        |> Enum.with_index()
+        |> Enum.map(fn {_col, j} ->
+          if j in from_col..to_col do
+            submatrix |> Enum.at(i - from_row) |> Enum.at(j - from_col)
+          else
+            Enum.at(row, j)
+          end
+        end)
+      else
+        row
       end
     end)
   end
