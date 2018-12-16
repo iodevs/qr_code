@@ -38,7 +38,10 @@ defmodule QRCode.Pattern do
   ]
 
   def qr_matrix(version) do
-    Matrix.new((version - 1) * 4 + 21)
+    size = (version - 1) * 4 + 21
+
+    size
+    |> Matrix.new()
     |> add_finders(version)
     |> add_alignments(version)
     |> add_timings(version)
@@ -71,8 +74,11 @@ defmodule QRCode.Pattern do
   end
 
   defp add_timings(matrix, version) do
+    size = 4 * version + 1
+
     row =
-      Vector.row(4 * version + 1)
+      size
+      |> Vector.row()
       |> Vector.alternate_seq(1)
 
     end_position = {8, 4 * version + 8}
@@ -113,13 +119,15 @@ defmodule QRCode.Pattern do
   end
 
   defp finder() do
-    Matrix.new(7, 1)
+    7
+    |> Matrix.new(1)
     |> and_then2(Matrix.new(5), &Matrix.update(&1, {1, 1}, {5, 5}, &2))
     |> and_then2(Matrix.new(3, 1), &Matrix.update(&1, {2, 2}, {4, 4}, &2))
   end
 
   defp alignment() do
-    Matrix.new(5, 1)
+    5
+    |> Matrix.new(1)
     |> and_then2(Matrix.new(3), &Matrix.update(&1, {1, 1}, {3, 3}, &2))
     |> Result.and_then(&Matrix.update_element(&1, 2, 2, 1))
   end
