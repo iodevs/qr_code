@@ -7,9 +7,9 @@ defmodule QRCode.QR do
   @type version() :: 1..40
   @type mode() :: :numeric | :alphanumeric | :byte | :kanji | :eci
   @type t() :: %__MODULE__{
-          orig: Maybe.t(String.t()),
-          encoded: Maybe.t(binary()),
-          version: Maybe.t(version()),
+          orig: ExMaybe.t(String.t()),
+          encoded: ExMaybe.t(binary()),
+          version: ExMaybe.t(version()),
           ecc_level: level(),
           mode: mode(),
           groups: tuple()

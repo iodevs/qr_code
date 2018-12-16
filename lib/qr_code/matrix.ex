@@ -9,7 +9,7 @@ defmodule QRCode.Matrix do
   @type row :: [pos_integer]
   @type matrix :: [row]
   @type dimension :: {pos_integer, pos_integer} | pos_integer
-  @type index :: {pos_integer, pos_integer}
+  @type index :: {non_neg_integer, non_neg_integer}
   @type element :: number | matrix
 
   @doc """
@@ -189,9 +189,9 @@ defmodule QRCode.Matrix do
       }
 
   """
-  @spec update_map(matrix, list(index), {:ok, element}) :: Result.t(String.t(), matrix)
+  @spec update_map(matrix, list(index), matrix) :: Result.t(String.t(), matrix)
   def update_map(matrix, positions, submatrix) do
-    {row, col, check_size} = check_size(matrix, submatrix, positions)
+    {row, col, check_size} = and_then2(matrix, submatrix, &check_size(&1, &2, positions))
 
     case check_size do
       true ->
@@ -297,8 +297,8 @@ defmodule QRCode.Matrix do
   defp and_then2(_, {:error, _} = result, _f), do: result
 
   defp check_size(matrix, submatrix, positions) do
-    {rm, cm} = matrix |> Result.and_then(&size(&1))
-    {rs, cs} = submatrix |> Result.and_then(&size(&1))
+    {rm, cm} = size(matrix)
+    {rs, cs} = size(submatrix)
 
     Enum.reduce_while(
       positions,
