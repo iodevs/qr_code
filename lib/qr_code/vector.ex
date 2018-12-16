@@ -45,9 +45,9 @@ defmodule QRCode.Vector do
 
   """
 
-  @spec col(pos_integer, number) :: vector()
+  @spec col(pos_integer, number) :: [vector()]
   def col(size, val \\ 0) do
-    List.duplicate(val, size) |> Enum.chunk_every(1)
+    val |> List.duplicate(size) |> Enum.chunk_every(1)
   end
 
   @doc """

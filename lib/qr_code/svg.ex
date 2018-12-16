@@ -20,7 +20,7 @@ defmodule QRCode.Svg do
             qrcode_color: "#000000"
 
   @spec generate(Matrix.matrix(), svg_string(), t()) ::
-          :ok | Result.error(File.posix() | :badarg | :terminated | String.t())
+          :ok | Result.Error.t(File.posix() | :badarg | :terminated | String.t())
   def generate(matrix, svg_name, settings \\ %__MODULE__{}) do
     matrix
     |> create(settings)
@@ -46,10 +46,10 @@ defmodule QRCode.Svg do
   end
 
   defp save(svg, svg_name) do
-    {:ok, file} = File.open(svg_name, [:write])
-
-    IO.binwrite(file, svg)
-    File.close(file)
+    svg_name
+    |> File.open([:write])
+    |> Result.and_then(&IO.binwrite(&1, svg))
+    |> Result.map(&File.close(&1))
   end
 
   defp create_rect({x_pos, y_pos}, scale, color) do
