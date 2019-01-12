@@ -3,6 +3,11 @@ defmodule QRCode.Pattern do
   A patterns are a non-data element of the QR code that is required
   by the QR code specification, such as the three finder patterns in
   the corners of the QR code matrix.
+
+
+  1 ... Finders
+  2 ... Separators
+  3 ... Alignments
   """
 
   alias MatrixReloaded.{Matrix, Vector}
@@ -43,6 +48,7 @@ defmodule QRCode.Pattern do
     size
     |> Matrix.new()
     |> add_finders(version)
+    |> add_separators(version)
     |> add_alignments(version)
     |> add_timings(version)
     |> add_dark_module(version)
@@ -65,6 +71,19 @@ defmodule QRCode.Pattern do
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 10}))
     |> put_to_list(finder())
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 10, 0}))
+  end
+
+  defp add_separators(matrix, version) do
+    row = Vector.row(8, 2)
+    col = Vector.transpose(row)
+
+    matrix
+    |> Result.and_then(&Matrix.update_row(&1, row, {7, 0}))
+    |> Result.and_then(&Matrix.update_row(&1, row, {7, 4 * version + 9}))
+    |> Result.and_then(&Matrix.update_row(&1, row, {4 * version + 9, 0}))
+    |> Result.and_then(&Matrix.update_col(&1, col, {0, 7}))
+    |> Result.and_then(&Matrix.update_col(&1, col, {0, 4 * version + 9}))
+    |> Result.and_then(&Matrix.update_col(&1, col, {4 * version + 9, 7}))
   end
 
   defp add_timings(matrix, version) do
@@ -115,9 +134,9 @@ defmodule QRCode.Pattern do
   end
 
   defp alignment() do
-    [Matrix.new(5, 1), Matrix.new(3)]
+    [Matrix.new(5, 3), Matrix.new(3)]
     |> Result.and_then_x(&Matrix.update(&1, &2, {1, 1}))
-    |> Result.and_then(&Matrix.update_element(&1, 1, {2, 2}))
+    |> Result.and_then(&Matrix.update_element(&1, 3, {2, 2}))
   end
 
   defp add_dark_module(matrix, version) do
