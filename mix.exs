@@ -42,7 +42,8 @@ defmodule QRCode.MixProject do
       {:excoveralls, "~> 0.9", only: :test},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:xml_builder, "~> 2.1.1"},
-      {:csvlixir, "~> 2.0.3"}
+      {:csvlixir, "~> 2.0.3"},
+      {:matrix_reloaded, "~> 1.0.2"}
     ]
   end
 
