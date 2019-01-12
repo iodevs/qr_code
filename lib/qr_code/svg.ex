@@ -3,7 +3,7 @@ defmodule QRCode.Svg do
   SVG structure and helper functions.
   """
 
-  alias QRCode.Matrix
+  alias MatrixReloaded.Matrix
 
   @type svg_string :: String.t()
   @type background_color :: String.t() | tuple
@@ -19,9 +19,9 @@ defmodule QRCode.Svg do
             background_color: "#ffffff",
             qrcode_color: "#000000"
 
-  @spec generate(Matrix.matrix(), svg_string(), t()) ::
+  @spec generate(Matrix.t(), svg_string(), t()) ::
           :ok | Result.Error.t(File.posix() | :badarg | :terminated | String.t())
-  def generate(matrix, svg_name, settings \\ %__MODULE__{}) do
+  def generate(matrix, svg_name \\ "tmp/qr_code.svg", settings \\ %__MODULE__{}) do
     matrix
     |> create(settings)
     |> save(svg_name)
@@ -47,9 +47,9 @@ defmodule QRCode.Svg do
 
   defp save(svg, svg_name) do
     svg_name
-    |> File.open([:write])
-    |> Result.and_then(&IO.binwrite(&1, svg))
-    |> Result.map(&File.close(&1))
+    |> File.open([:write], fn file ->
+      IO.binwrite(file, svg)
+    end)
   end
 
   defp create_rect({x_pos, y_pos}, scale, color) do
