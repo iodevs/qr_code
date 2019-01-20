@@ -56,7 +56,18 @@ defmodule QRCode.Pattern do
   @timing 6
   @dark_module 7
 
-  def qr_matrix(version) do
+  @correct_finder [Matrix.new(7, 1), Matrix.new(5)]
+                  |> Result.and_then_x(&Matrix.update(&1, &2, {1, 1}))
+                  |> (fn mat -> [mat, Matrix.new(3, 1)] end).()
+                  |> Result.and_then_x(&Matrix.update(&1, &2, {2, 2}))
+
+  @correct_alignment [Matrix.new(5, 1), Matrix.new(3)]
+                     |> Result.and_then_x(&Matrix.update(&1, &2, {1, 1}))
+                     |> Result.and_then(&Matrix.update_element(&1, 1, {2, 2}))
+
+  @correct_separator Vector.row(8)
+
+  def qr_matrix(version, encoding_data) do
     size = (version - 1) * 4 + 21
 
     size
@@ -67,19 +78,19 @@ defmodule QRCode.Pattern do
     |> add_timings(@timing, version)
     |> add_alignments(@alignment, version)
     |> add_dark_module(@dark_module, version)
+    |> fill_matrix_by_data(encoding_data)
   end
 
-  def save_csv(version, file_name \\ "tmp/qr_code.csv") do
+  def save_csv(matrix, file_name \\ "tmp/qr_code.csv") do
     file_name
     |> File.open([:write], fn file ->
-      version
-      |> qr_matrix()
+      matrix
       |> Result.and_then(&CSVLixir.write(&1))
       |> Enum.each(&IO.write(file, &1))
     end)
   end
 
-  def add_finders(matrix, finder, version) do
+  def add_finders(matrix, finder \\ @correct_finder, version) do
     [matrix, finder]
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 0}))
     |> put_to_list(finder)
@@ -88,7 +99,7 @@ defmodule QRCode.Pattern do
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 10, 0}))
   end
 
-  def add_separators(matrix, row, version) do
+  def add_separators(matrix, row \\ @correct_separator, version) do
     col = Vector.transpose(row)
 
     matrix
@@ -99,6 +110,8 @@ defmodule QRCode.Pattern do
     |> Result.and_then(&Matrix.update_col(&1, col, {0, 4 * version + 9}))
     |> Result.and_then(&Matrix.update_col(&1, col, {4 * version + 9, 7}))
   end
+
+  def add_reserved_areas(matrix, val \\ 0, version)
 
   def add_reserved_areas(matrix, val, version) when version < 7 do
     row = Vector.row(8, val)
@@ -120,21 +133,35 @@ defmodule QRCode.Pattern do
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
   end
 
-  def add_timings(matrix, val, version) do
+  def add_timings(matrix, val \\ 0, version)
+
+  def add_timings(matrix, 0, version) do
     size = 4 * version + 1
 
     row =
       size
-      |> Vector.row(val)
-
-    # |> Vector.alternate_seq(1)
+      |> Vector.row()
+      |> Vector.alternate_seq(1)
 
     matrix
     |> Result.and_then(&Matrix.update_row(&1, row, {6, 8}))
     |> Result.and_then(&Matrix.update_col(&1, Vector.transpose(row), {8, 6}))
   end
 
-  def add_alignments(matrix, _sub, 1), do: matrix
+  def add_timings(matrix, val, version) when val != 0 do
+    size = 4 * version + 1
+
+    row =
+      size
+      |> Vector.row(val)
+
+    matrix
+    |> Result.and_then(&Matrix.update_row(&1, row, {6, 8}))
+    |> Result.and_then(&Matrix.update_col(&1, Vector.transpose(row), {8, 6}))
+  end
+
+  def add_alignments(matrix, alignment \\ @correct_alignment, version)
+  def add_alignments(matrix, _alignment, 1), do: matrix
 
   def add_alignments(matrix, alignment, version) when version < 6 do
     position = 4 * version + 8
@@ -161,9 +188,13 @@ defmodule QRCode.Pattern do
     |> add_alignments_to_matrix(alignment, positions)
   end
 
-  def add_dark_module(matrix, val, version) do
+  def add_dark_module(matrix, val \\ 1, version) do
     matrix
     |> Result.and_then(&Matrix.update_element(&1, val, {4 * version + 9, 8}))
+  end
+
+  defp fill_matrix_by_data(matrix, encoding_data) do
+    matrix
   end
 
   defp reserved_area(val) do
