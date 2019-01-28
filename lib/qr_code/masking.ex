@@ -36,21 +36,34 @@ defmodule QRCode.Masking do
   end
 
   def penalty_1(matrix) do
-    row_pen_1 =
+    row_pen =
       matrix
       |> compute_penalty_1()
 
-    col_pen_1 =
+    col_pen =
       matrix
       |> Matrix.transpose()
       |> compute_penalty_1()
 
-    row_pen_1 + col_pen_1
+    row_pen + col_pen
   end
 
   def penalty_2(matrix) do
     matrix
     |> compute_penalty_2()
+  end
+
+  def penalty_3(matrix) do
+    row_pen =
+      matrix
+      |> compute_penalty_3()
+
+    col_pen =
+      matrix
+      |> Matrix.transpose()
+      |> compute_penalty_3()
+
+    row_pen + col_pen
   end
 
   defp compute_penalty_1(matrix) do
@@ -93,18 +106,42 @@ defmodule QRCode.Masking do
     compute_penalty_2([row2] ++ rows, acc + acc_row)
   end
 
-  def evaluate_cond_2(row, sum \\ 0)
+  defp evaluate_cond_2(row, sum \\ 0)
 
-  def evaluate_cond_2(row, sum) when length(row) == 1 do
+  defp evaluate_cond_2(row, sum) when length(row) == 1 do
     sum
   end
 
-  def evaluate_cond_2([v1, v2 | tl], sum) when v1 + v2 == 0 or v1 + v2 == 4 do
+  defp evaluate_cond_2([v1, v2 | tl], sum) when v1 + v2 == 0 or v1 + v2 == 4 do
     evaluate_cond_2([v2] ++ tl, sum + 3)
   end
 
-  def evaluate_cond_2([_v1 | tl], sum) do
+  defp evaluate_cond_2([_v1 | tl], sum) do
     evaluate_cond_2(tl, sum)
+  end
+
+  defp compute_penalty_3(matrix) do
+    matrix
+    |> Enum.reduce(0, fn x, acc -> evaluate_cond_3(x, acc) end)
+  end
+
+  defp evaluate_cond_3(row, sum) when length(row) < 11 do
+    sum
+  end
+
+  defp evaluate_cond_3([a, b, c, d, e, f, g, h, i, j, k | tl], sum) do
+    check = [a, b, c, d, e, f, g, h, i, j, k]
+    patt_1 = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0]
+    patt_2 = [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1]
+
+    pen =
+      if check == patt_1 or check == patt_2 do
+        40
+      else
+        0
+      end
+
+    evaluate_cond_3([b, c, d, e, f, g, h, i, j, k] ++ tl, sum + pen)
   end
 
   defp mask_pattern(val, row, col, 0) when rem(row + col, 2) == 0, do: val ^^^ 1
