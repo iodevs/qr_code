@@ -66,6 +66,27 @@ defmodule QRCode.Masking do
     row_pen + col_pen
   end
 
+  def penalty_4(matrix) do
+    {rs, cs} = Matrix.size(matrix)
+
+    dark_modules =
+      matrix
+      |> Enum.reduce(0, fn row, acc -> Enum.sum(row) + acc end)
+
+    percent_of_dark =
+      (dark_modules * 100 / (rs * cs))
+      |> Kernel.floor()
+
+    reminder =
+      percent_of_dark
+      |> Kernel.rem(5)
+
+    Kernel.min(
+      Kernel.abs(percent_of_dark - reminder - 50) / 5,
+      Kernel.abs(percent_of_dark - reminder - 45) / 5
+    ) * 10
+  end
+
   defp compute_penalty_1(matrix) do
     matrix
     |> Enum.reduce(0, fn [h | _] = row, acc ->
@@ -122,7 +143,7 @@ defmodule QRCode.Masking do
 
   defp compute_penalty_3(matrix) do
     matrix
-    |> Enum.reduce(0, fn x, acc -> evaluate_cond_3(x, acc) end)
+    |> Enum.reduce(0, fn row, acc -> evaluate_cond_3(row, acc) end)
   end
 
   defp evaluate_cond_3(row, sum) when length(row) < 11 do
