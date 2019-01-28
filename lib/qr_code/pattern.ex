@@ -125,7 +125,7 @@ defmodule QRCode.Pattern do
   end
 
   def add_reserved_areas(matrix, val, version) do
-    transp = reserved_area(val) |> Result.and_then(&Matrix.transpose(&1))
+    transp = val |> reserved_area() |> Result.and_then(&Matrix.transpose(&1))
 
     [matrix, reserved_area(val)]
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
