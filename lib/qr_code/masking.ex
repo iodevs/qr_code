@@ -73,9 +73,7 @@ defmodule QRCode.Masking do
       matrix
       |> Enum.reduce(0, fn row, acc -> Enum.sum(row) + acc end)
 
-    percent_of_dark =
-      (dark_modules * 100 / (rs * cs))
-      |> Kernel.floor()
+    percent_of_dark = Kernel.floor(dark_modules * 100 / (rs * cs))
 
     reminder =
       percent_of_dark
