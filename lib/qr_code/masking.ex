@@ -90,7 +90,7 @@ defmodule QRCode.Masking do
     |> Enum.reduce(0, fn [h | _] = row, acc ->
       row
       |> Enum.reduce({h, 0, acc}, &evaluate_cond_1/2)
-      |> (fn {__selected, _sum, val} -> val end).()
+      |> Kernel.elem(2)
     end)
   end
 
@@ -119,7 +119,8 @@ defmodule QRCode.Masking do
   defp compute_penalty_2([row1, row2 | rows], acc) do
     acc_row =
       row1
-      |> map2(row2, fn v1, v2 -> v1 + v2 end)
+      |> Enum.zip(row2)
+      |> Enum.map(fn {v1, v2} -> v1 + v2 end)
       |> evaluate_cond_2()
 
     compute_penalty_2([row2] ++ rows, acc + acc_row)
@@ -185,12 +186,4 @@ defmodule QRCode.Masking do
        do: val ^^^ 1
 
   defp mask_pattern(val, _row, _col, _mask_num), do: val
-
-  defp map2([h1 | t1], [h2 | t2], fun) do
-    [fun.(h1, h2) | map2(t1, t2, fun)]
-  end
-
-  defp map2([], [], _fun) do
-    []
-  end
 end
