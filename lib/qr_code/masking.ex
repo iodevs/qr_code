@@ -10,17 +10,30 @@ defmodule QRCode.Masking do
   alias MatrixReloaded.Matrix
   alias QRCode.Pattern
 
-  @spec make(Result.t(String.t(), Matrix.t()), pos_integer, non_neg_integer) ::
-          Result.t(String.t(), Matrix.t())
-  def make(matrix, version, mask_num) do
-    matrix
-    |> Result.map(&make_mask_pattern(&1, mask_num))
-    |> Pattern.add_finders(version)
-    |> Pattern.add_separators(version)
-    |> Pattern.add_reserved_areas(version)
-    |> Pattern.add_timings(version)
-    |> Pattern.add_alignments(version)
-    |> Pattern.add_dark_module(version)
+  @spec make(Matrix.t(), pos_integer) :: {Result.t(String.t(), Matrix.t()), pos_integer}
+  def make(matrix, version) do
+    masking_matrices =
+      0..7
+      |> Enum.map(fn mask_num ->
+        matrix
+        |> Result.map(&make_mask_pattern(&1, mask_num))
+        |> Pattern.add_finders(version)
+        |> Pattern.add_separators(version)
+        |> Pattern.add_reserved_areas(version)
+        |> Pattern.add_timings(version)
+        |> Pattern.add_alignments(version)
+        |> Pattern.add_dark_module(version)
+      end)
+
+    penalties =
+      masking_matrices
+      |> Enum.map(fn mat -> mat |> Result.and_then(&total_penalty(&1)) end)
+
+    index =
+      penalties
+      |> Enum.find_index(fn pen -> pen == Enum.min(penalties) end)
+
+    {Enum.at(masking_matrices, index), index}
   end
 
   defp make_mask_pattern(matrix, mask_num) do
@@ -35,7 +48,11 @@ defmodule QRCode.Masking do
     end)
   end
 
-  def penalty_1(matrix) do
+  defp total_penalty(matrix) do
+    Enum.reduce(1..4, 0, fn pen, sum -> penalty(matrix, pen) + sum end)
+  end
+
+  defp penalty(matrix, 1) do
     row_pen =
       matrix
       |> compute_penalty_1()
@@ -48,12 +65,12 @@ defmodule QRCode.Masking do
     row_pen + col_pen
   end
 
-  def penalty_2(matrix) do
+  defp penalty(matrix, 2) do
     matrix
     |> compute_penalty_2()
   end
 
-  def penalty_3(matrix) do
+  defp penalty(matrix, 3) do
     row_pen =
       matrix
       |> compute_penalty_3()
@@ -66,7 +83,7 @@ defmodule QRCode.Masking do
     row_pen + col_pen
   end
 
-  def penalty_4(matrix) do
+  defp penalty(matrix, 4) do
     {rs, cs} = Matrix.size(matrix)
 
     dark_modules =
@@ -79,10 +96,12 @@ defmodule QRCode.Masking do
       percent_of_dark
       |> Kernel.rem(5)
 
-    Kernel.min(
-      Kernel.abs(percent_of_dark - reminder - 50) / 5,
-      Kernel.abs(percent_of_dark - reminder - 45) / 5
-    ) * 10
+    Kernel.trunc(
+      Kernel.min(
+        Kernel.abs(percent_of_dark - reminder - 50) / 5,
+        Kernel.abs(percent_of_dark - reminder - 45) / 5
+      ) * 10
+    )
   end
 
   defp compute_penalty_1(matrix) do
