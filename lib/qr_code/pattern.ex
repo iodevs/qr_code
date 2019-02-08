@@ -18,6 +18,7 @@ defmodule QRCode.Pattern do
   """
 
   alias MatrixReloaded.{Matrix, Vector}
+  alias QRCode.Utils
 
   @locations [
     {14, [26, 46, 66]},
@@ -93,9 +94,9 @@ defmodule QRCode.Pattern do
   def add_finders(matrix, finder \\ @correct_finder, version) do
     [matrix, finder]
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 0}))
-    |> put_to_list(finder)
+    |> Utils.put_to_list(finder)
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 10}))
-    |> put_to_list(finder)
+    |> Utils.put_to_list(finder)
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 10, 0}))
   end
 
@@ -129,7 +130,7 @@ defmodule QRCode.Pattern do
 
     [matrix, reserved_area(val)]
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
-    |> put_to_list(transp)
+    |> Utils.put_to_list(transp)
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
   end
 
@@ -252,11 +253,5 @@ defmodule QRCode.Pattern do
 
   defp generate_positions(list, num) do
     for x <- [num], y <- list, do: {x, y}
-  end
-
-  defp put_to_list(el, tpl) do
-    el
-    |> List.wrap()
-    |> Kernel.++([tpl])
   end
 end
