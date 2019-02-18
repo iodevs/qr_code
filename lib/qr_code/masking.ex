@@ -42,9 +42,7 @@ defmodule QRCode.Masking do
     |> Enum.map(fn {row, i} ->
       row
       |> Enum.with_index()
-      |> Enum.map(fn {_col, j} ->
-        row |> Enum.at(j) |> mask_pattern(i, j, mask_num)
-      end)
+      |> Enum.map(fn {val, j} -> mask_pattern(val, i, j, mask_num) end)
     end)
   end
 
