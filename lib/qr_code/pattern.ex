@@ -213,16 +213,20 @@ defmodule QRCode.Pattern do
     matrix
     |> Matrix.flip_ud()
     |> Enum.map_reduce(acc_data, fn row, acc_row ->
-      row
-      |> Enum.with_index()
-      |> Enum.map_reduce(acc_row, fn {val, j}, acc_col ->
-        if j in cols and val == 0 do
-          <<cw::size(1), rest_bin::bitstring>> = acc_col
-          {cw, rest_bin}
-        else
-          {val, acc_col}
-        end
-      end)
+      fill_row(row, acc_row, cols)
+    end)
+  end
+
+  defp fill_row(row, acc_row, cols) do
+    row
+    |> Enum.with_index()
+    |> Enum.map_reduce(acc_row, fn {val, j}, acc_col ->
+      if j in cols and val == 0 do
+        <<cw::size(1), rest_bin::bitstring>> = acc_col
+        {cw, rest_bin}
+      else
+        {val, acc_col}
+      end
     end)
   end
 
