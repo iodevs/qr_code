@@ -43,7 +43,8 @@ defmodule QRCode.MixProject do
       {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
       {:xml_builder, "~> 2.1.1"},
       {:csvlixir, "~> 2.0.4"},
-      {:matrix_reloaded, "~> 2.0.1"}
+      {:matrix_reloaded, "~> 2.0.1"},
+      {:propcheck, "~> 1.1", only: :test}
     ]
   end
 
