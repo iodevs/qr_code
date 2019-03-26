@@ -1,4 +1,4 @@
-defmodule QRCode.Masking do
+defmodule QRCode.DataMasking do
   @moduledoc """
   A mask pattern changes which modules are dark and which are light
   according to a particular rule. The purpose of this step is to
@@ -8,21 +8,23 @@ defmodule QRCode.Masking do
   use Bitwise
 
   alias MatrixReloaded.Matrix
-  alias QRCode.Pattern
+  alias QRCode.{Placement, QR}
+  import QRCode.QR, only: [version: 1]
 
-  @spec make(Matrix.t(), pos_integer) :: {Result.t(String.t(), Matrix.t()), pos_integer}
-  def make(matrix, version) do
+  @spec aply(QR.t()) :: Result.t(String.t(), QR.t())
+  def aply(%QR{matrix: matrix, version: version} = qr)
+      when version(version) do
     masking_matrices =
       0..7
       |> Enum.map(fn mask_num ->
         matrix
         |> Result.map(&make_mask_pattern(&1, mask_num))
-        |> Pattern.add_finders(version)
-        |> Pattern.add_separators(version)
-        |> Pattern.add_reserved_areas(version)
-        |> Pattern.add_timings(version)
-        |> Pattern.add_alignments(version)
-        |> Pattern.add_dark_module(version)
+        |> Placement.add_finders(version)
+        |> Placement.add_separators(version)
+        |> Placement.add_reserved_areas(version)
+        |> Placement.add_timings(version)
+        |> Placement.add_alignments(version)
+        |> Placement.add_dark_module(version)
       end)
 
     penalties =
@@ -33,7 +35,9 @@ defmodule QRCode.Masking do
       penalties
       |> Enum.find_index(fn pen -> pen == Enum.min(penalties) end)
 
-    {Enum.at(masking_matrices, index), index}
+    masking_matrices
+    |> Enum.at(index)
+    |> Result.map(fn matrix -> %{qr | matrix: matrix, mask_num: index} end)
   end
 
   defp make_mask_pattern(matrix, mask_num) do

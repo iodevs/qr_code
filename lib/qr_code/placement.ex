@@ -1,4 +1,4 @@
-defmodule QRCode.Pattern do
+defmodule QRCode.Placement do
   @moduledoc """
   A patterns are a non-data element of the QR code that is required
   by the QR code specification, such as the three finder patterns in
@@ -18,7 +18,8 @@ defmodule QRCode.Pattern do
   """
 
   alias MatrixReloaded.{Matrix, Vector}
-  alias QRCode.Utils
+  alias QRCode.{QR, Utils}
+  import QRCode.QR, only: [version: 1]
 
   @locations [
     {14, [26, 46, 66]},
@@ -68,7 +69,8 @@ defmodule QRCode.Pattern do
 
   @correct_separator Vector.row(8)
 
-  def qr_matrix(version, encoding_data) do
+  @spec put_patterns(QR.t()) :: Result.t(String.t(), QR.t())
+  def put_patterns(%QR{version: version, encoded: encoding_data} = qr) when version(version) do
     size = (version - 1) * 4 + 21
 
     size
@@ -80,6 +82,7 @@ defmodule QRCode.Pattern do
     |> add_alignments(version, @alignment)
     |> add_dark_module(version, @dark_module)
     |> Result.map(&fill_matrix_by_data(&1, size, encoding_data))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
   def save_csv(matrix, file_name \\ "tmp/qr_code.csv") do

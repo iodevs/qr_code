@@ -1,4 +1,4 @@
-defmodule QRCode.FormatVersionInformation do
+defmodule QRCode.FormatVersion do
   @moduledoc """
   A QR code uses error correction encoding and mask patterns. The QR code's
   size is represented by a number, called a version number. To ensure that
@@ -10,7 +10,8 @@ defmodule QRCode.FormatVersionInformation do
   the QR code scanner which version the code is.
   """
   alias MatrixReloaded.{Matrix, Vector}
-  alias QRCode.Utils
+  alias QRCode.{QR, Utils}
+  import QRCode.QR, only: [masking: 1, version: 1]
 
   @low [
     [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0],
@@ -93,37 +94,53 @@ defmodule QRCode.FormatVersionInformation do
     [[1, 0, 0], [1, 0, 1], [1, 0, 0], [0, 1, 1], [0, 0, 0], [1, 0, 1]]
   ]
 
-  # @spec put_forver_info({Matrix.t(), pos_integer}, version, level) ::
-  #         Result.t(String.t(), Matrix.t())
-  def put_forver_info({matrix, mask_num}, version, :low) when version < 7 do
+  @spec put_information(QR.t()) :: Result.t(String.t(), QR.t())
+  def put_information(
+        %QR{matrix: matrix, version: version, ecc_level: :low, mask_num: mask_num} = qr
+      )
+      when masking(mask_num) and version(version) and version < 7 do
     matrix
     |> Result.map(&set_format_info(&1, @low, mask_num, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def put_forver_info({matrix, mask_num}, version, :medium) when version < 7 do
+  def put_information(
+        %QR{matrix: matrix, version: version, ecc_level: :medium, mask_num: mask_num} = qr
+      )
+      when masking(mask_num) and version(version) and version < 7 do
     matrix
     |> Result.map(&set_format_info(&1, @medium, mask_num, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def put_forver_info({matrix, mask_num}, version, :quartile) when version < 7 do
+  def put_information(
+        %QR{matrix: matrix, version: version, ecc_level: :quartile, mask_num: mask_num} = qr
+      )
+      when masking(mask_num) and version(version) and version < 7 do
     matrix
     |> Result.map(&set_format_info(&1, @quartile, mask_num, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def put_forver_info({matrix, mask_num}, version, :high) when version < 7 do
+  def put_information(
+        %QR{matrix: matrix, version: version, ecc_level: :high, mask_num: mask_num} = qr
+      )
+      when masking(mask_num) and version(version) and version < 7 do
     matrix
     |> Result.map(&set_format_info(&1, @high, mask_num, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def put_forver_info({matrix, _mask_num}, version, _level) do
-    version_info = Enum.at(@version_table, version - 7)
+  def put_information(%QR{matrix: matrix, version: version} = qr) when version(version) do
+    version_info =
+      @version_table
+      |> Enum.at(version - 7)
 
-    transp = version_info |> Result.and_then(&Matrix.transpose(&1))
-
-    [matrix, version_info]
-    |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
-    |> Utils.put_to_list(transp)
+    matrix
+    |> Matrix.update(version_info, {0, 4 * version + 6})
+    |> Utils.put_to_list(Matrix.transpose(version_info))
     |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
   defp set_format_info(matrix, table_level, mask_num, version) do
