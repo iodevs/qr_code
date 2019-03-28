@@ -85,15 +85,6 @@ defmodule QRCode.Placement do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def save_csv(matrix, file_name \\ "tmp/qr_code.csv") do
-    file_name
-    |> File.open([:write], fn file ->
-      matrix
-      |> Result.and_then(&CSVLixir.write(&1))
-      |> Enum.each(&IO.write(file, &1))
-    end)
-  end
-
   def add_finders(matrix, version, finder \\ @correct_finder) do
     [matrix, finder]
     |> Result.and_then_x(&Matrix.update(&1, &2, {0, 0}))
@@ -195,10 +186,6 @@ defmodule QRCode.Placement do
   def add_dark_module(matrix, version, val \\ 1) do
     matrix
     |> Result.and_then(&Matrix.update_element(&1, val, {4 * version + 9, 8}))
-  end
-
-  def fake_data_ver_2() do
-    for i <- List.duplicate(1, 359), do: <<i::1>>, into: <<>>
   end
 
   def fill_matrix_by_data(matrix, size, encoding_data) do
