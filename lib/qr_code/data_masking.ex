@@ -18,6 +18,7 @@ defmodule QRCode.DataMasking do
       0..7
       |> Enum.map(fn mask_num ->
         matrix
+        |> Result.ok()
         |> Result.map(&make_mask_pattern(&1, mask_num))
         |> Placement.add_finders(version)
         |> Placement.add_separators(version)

@@ -10,7 +10,7 @@ defmodule QRCode.FormatVersion do
   the QR code scanner which version the code is.
   """
   alias MatrixReloaded.{Matrix, Vector}
-  alias QRCode.{QR, Utils}
+  alias QRCode.QR
   import QRCode.QR, only: [masking: 1, version: 1]
 
   @low [
@@ -138,8 +138,7 @@ defmodule QRCode.FormatVersion do
 
     matrix
     |> Matrix.update(version_info, {0, 4 * version + 6})
-    |> Utils.put_to_list(Matrix.transpose(version_info))
-    |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
+    |> Result.and_then(&Matrix.update(&1, Matrix.transpose(version_info), {4 * version + 6, 0}))
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
