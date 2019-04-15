@@ -109,46 +109,27 @@ defmodule QRCode.Placement do
   def add_reserved_areas(matrix, version, val \\ 0)
 
   def add_reserved_areas(matrix, version, val) when version < 7 do
-    row = Vector.row(8, val)
-    col = Vector.transpose(row)
-
-    matrix
-    |> Result.and_then(&Matrix.update_row(&1, row, {8, 0}))
-    |> Result.and_then(&Matrix.update_row(&1, row, {8, 4 * version + 9}))
-    |> Result.and_then(&Matrix.update_col(&1, col, {4 * version + 9, 8}))
-    |> Result.and_then(&Matrix.update_col(&1, Vector.col(9, val), {0, 8}))
+    add_reserve_fia(matrix, version, val)
   end
 
   def add_reserved_areas(matrix, version, val) do
-    transp = val |> reserved_area() |> Result.map(&Matrix.transpose(&1))
-
-    [matrix, reserved_area(val)]
-    |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
-    |> Utils.put_to_list(transp)
-    |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
-  end
-
-  def add_timings(matrix, version, val \\ 0)
-
-  def add_timings(matrix, version, 0) do
-    size = 4 * version + 1
-
-    row =
-      size
-      |> Vector.row()
-      |> Vector.alternate_seq(1)
-
     matrix
-    |> Result.and_then(&Matrix.update_row(&1, row, {6, 8}))
-    |> Result.and_then(&Matrix.update_col(&1, Vector.transpose(row), {8, 6}))
+    |> add_reserve_fia(version, val)
+    |> add_reserve_via(version, val)
   end
 
-  def add_timings(matrix, version, val) when val != 0 do
-    size = 4 * version + 1
+  def add_timings(matrix, version) do
+    row = get_timing_row(version)
 
-    row =
-      size
-      |> Vector.row(val)
+    [matrix, row]
+    |> Result.and_then_x(&Matrix.update_row(&1, &2, {6, 8}))
+    |> Utils.put_to_list(row)
+    |> Result.and_then_x(&Matrix.update_col(&1, Vector.transpose(&2), {8, 6}))
+  end
+
+  def add_timings(matrix, version, val) do
+    size = 4 * version + 1
+    row = size |> Vector.row(val)
 
     matrix
     |> Result.and_then(&Matrix.update_row(&1, row, {6, 8}))
@@ -158,29 +139,22 @@ defmodule QRCode.Placement do
   def add_alignments(matrix, version, alignment \\ @correct_alignment)
   def add_alignments(matrix, 1, _alignment), do: matrix
 
-  def add_alignments(matrix, version, alignment) when version < 6 do
-    position = 4 * version + 8
-
+  def add_alignments(matrix, version, alignment) when version < 7 do
     [matrix, alignment]
-    |> Result.and_then_x(&Matrix.update(&1, &2, {position, position}))
+    |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 8, 4 * version + 8}))
   end
 
   def add_alignments(matrix, version, alignment) when version < 14 do
-    positions = [2 * version + 8, 4 * version + 10]
-
-    matrix
-    |> add_alignments_to_horizontal_timing(alignment, positions)
-    |> add_alignments_to_vertical_timing(alignment, positions)
-    |> add_alignments_to_matrix(alignment, positions)
+    Matrix.update_map(matrix, alignment, get_all_positions([2 * version + 8, 4 * version + 10]))
   end
 
   def add_alignments(matrix, version, alignment) do
-    positions = find_positions(version)
+    positions =
+      version
+      |> find_positions()
+      |> get_all_positions()
 
-    matrix
-    |> add_alignments_to_horizontal_timing(alignment, positions)
-    |> add_alignments_to_vertical_timing(alignment, positions)
-    |> add_alignments_to_matrix(alignment, positions)
+    Matrix.update_map(matrix, alignment, positions)
   end
 
   def add_dark_module(matrix, version, val \\ 1) do
@@ -224,39 +198,26 @@ defmodule QRCode.Placement do
     Matrix.new({6, 3}, val)
   end
 
-  defp add_alignments_to_horizontal_timing(matrix, alignment, positions) do
-    positions
-    |> Enum.drop(-1)
-    |> generate_positions(6)
-    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
-      Result.and_then_x(
-        [acc, alignment],
-        &Matrix.update(&1, &2, {row_pos - 2, col_pos - 2})
-      )
-    end)
+  defp add_reserve_fia(matrix, version, val) do
+    row_left = Vector.row(6, val) ++ [0] ++ [val, val]
+    row_right = Vector.row(8, val)
+    col_top = Vector.transpose(row_left)
+    col_bottom = Vector.col(7, val)
+
+    matrix
+    |> Result.and_then(&Matrix.update_row(&1, row_left, {8, 0}))
+    |> Result.and_then(&Matrix.update_row(&1, row_right, {8, 4 * version + 9}))
+    |> Result.and_then(&Matrix.update_col(&1, col_top, {0, 8}))
+    |> Result.and_then(&Matrix.update_col(&1, col_bottom, {4 * version + 10, 8}))
   end
 
-  defp add_alignments_to_vertical_timing(matrix, alignment, positions) do
-    positions
-    |> Enum.drop(-1)
-    |> generate_positions(6)
-    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
-      Result.and_then_x(
-        [acc, alignment],
-        &Matrix.update(&1, &2, {col_pos - 2, row_pos - 2})
-      )
-    end)
-  end
+  defp add_reserve_via(matrix, version, val) do
+    transp = val |> reserved_area() |> Result.map(&Matrix.transpose(&1))
 
-  defp add_alignments_to_matrix(matrix, alignment, positions) do
-    positions
-    |> generate_positions()
-    |> Enum.reduce(matrix, fn {row_pos, col_pos}, acc ->
-      Result.and_then_x(
-        [acc, alignment],
-        &Matrix.update(&1, &2, {row_pos - 2, col_pos - 2})
-      )
-    end)
+    [matrix, reserved_area(val)]
+    |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
+    |> Utils.put_to_list(transp)
+    |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
   end
 
   defp find_positions(version) do
@@ -273,7 +234,54 @@ defmodule QRCode.Placement do
     for x <- list, y <- list, do: {x, y}
   end
 
-  defp generate_positions(list, num) do
-    for x <- [num], y <- list, do: {x, y}
+  defp generate_positions(list, :horizontal) do
+    for x <- [6], y <- Enum.drop(list, -1), do: {x, y}
+  end
+
+  defp generate_positions(list, :vertical) do
+    for x <- Enum.drop(list, -1), y <- [6], do: {x, y}
+  end
+
+  defp get_positions(version) when version < 14 do
+    [2 * version + 8, 4 * version + 10]
+  end
+
+  defp get_positions(version) do
+    find_positions(version)
+  end
+
+  defp get_all_positions(list) do
+    list
+    |> generate_positions()
+    |> Kernel.++(generate_positions(list, :horizontal))
+    |> Kernel.++(generate_positions(list, :vertical))
+    |> Enum.map(fn {row_pos, col_pos} -> {row_pos - 2, col_pos - 2} end)
+  end
+
+  defp get_timing_row(version) when version < 7 do
+    size = 4 * version + 1
+
+    size
+    |> Vector.row()
+    |> Vector.alternate_seq(1)
+    |> Result.ok()
+  end
+
+  defp get_timing_row(version) do
+    size = 4 * version + 1
+
+    positions =
+      version
+      |> get_positions()
+      |> generate_positions(:horizontal)
+      |> Enum.map(fn {_row_pos, col_pos} -> col_pos - 10 end)
+
+    size
+    |> Vector.row()
+    |> Vector.alternate_seq(1)
+    |> Vector.update_map(
+      [0, 0, 0, 0, 0],
+      positions
+    )
   end
 end
