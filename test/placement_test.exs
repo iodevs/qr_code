@@ -10,59 +10,59 @@ defmodule PlacementTest do
   @file_format ".csv"
 
   describe "Placement" do
-    # test "should check if finder patterns are correct at qr matrix" do
-    #   result =
-    #     for version <- 1..40 do
-    #       size = 4 * version + 17
+    test "should check if finder patterns are correct at qr matrix" do
+      result =
+        for version <- 1..40 do
+          size = 4 * version + 17
 
-    #       rv =
-    #         size
-    #         |> Matrix.new()
-    #         |> Placement.add_finders(version)
+          rv =
+            size
+            |> Matrix.new()
+            |> Placement.add_finders(version)
 
-    #       version
-    #       |> read_csv("finder")
-    #       |> Kernel.==(rv)
-    #     end
+          version
+          |> read_csv("finder")
+          |> Kernel.==(rv)
+        end
 
-    #   assert Enum.all?(result)
-    # end
+      assert Enum.all?(result)
+    end
 
-    # test "should check if separator patterns are correct at qr matrix" do
-    #   result =
-    #     for version <- 1..40 do
-    #       size = 4 * version + 17
+    test "should check if separator patterns are correct at qr matrix" do
+      result =
+        for version <- 1..40 do
+          size = 4 * version + 17
 
-    #       rv =
-    #         size
-    #         |> Matrix.new()
-    #         |> Placement.add_separators(version)
+          rv =
+            size
+            |> Matrix.new()
+            |> Placement.add_separators(version)
 
-    #       version
-    #       |> read_csv("separator")
-    #       |> Kernel.==(rv)
-    #     end
+          version
+          |> read_csv("separator")
+          |> Kernel.==(rv)
+        end
 
-    #   assert Enum.all?(result)
-    # end
+      assert Enum.all?(result)
+    end
 
-    # test "should check if reserved areas are correct at qr matrix" do
-    #   result =
-    #     for version <- 1..40 do
-    #       size = 4 * version + 17
+    test "should check if reserved areas are correct at qr matrix" do
+      result =
+        for version <- 1..40 do
+          size = 4 * version + 17
 
-    #       rv =
-    #         size
-    #         |> Matrix.new()
-    #         |> Placement.add_reserved_areas(version, 1)
+          rv =
+            size
+            |> Matrix.new()
+            |> Placement.add_reserved_areas(version, 1)
 
-    #       version
-    #       |> read_csv("reserved_area")
-    #       |> Kernel.==(rv)
-    #     end
+          version
+          |> read_csv("reserved_area")
+          |> Kernel.==(rv)
+        end
 
-    #   assert Enum.all?(result)
-    # end
+      assert Enum.all?(result)
+    end
 
     test "should check if timing patterns are correct at qr matrix" do
       result =
@@ -82,41 +82,41 @@ defmodule PlacementTest do
       assert Enum.all?(result)
     end
 
-    # test "should check if alignment patterns are correct at qr matrix" do
-    #   result =
-    #     for version <- 1..40 do
-    #       size = 4 * version + 17
+    test "should check if alignment patterns are correct at qr matrix" do
+      result =
+        for version <- 1..40 do
+          size = 4 * version + 17
 
-    #       rv =
-    #         size
-    #         |> Matrix.new()
-    #         |> Placement.add_alignments(version)
+          rv =
+            size
+            |> Matrix.new()
+            |> Placement.add_alignments(version)
 
-    #       version
-    #       |> read_csv("alignment")
-    #       |> Kernel.==(rv)
-    #     end
+          version
+          |> read_csv("alignment")
+          |> Kernel.==(rv)
+        end
 
-    #   assert Enum.all?(result)
-    # end
+      assert Enum.all?(result)
+    end
 
-    # test "should check if dark modules are correct at qr matrix" do
-    #   result =
-    #     for version <- 1..40 do
-    #       size = 4 * version + 17
+    test "should check if dark modules are correct at qr matrix" do
+      result =
+        for version <- 1..40 do
+          size = 4 * version + 17
 
-    #       rv =
-    #         size
-    #         |> Matrix.new()
-    #         |> Placement.add_dark_module(version)
+          rv =
+            size
+            |> Matrix.new()
+            |> Placement.add_dark_module(version)
 
-    #       version
-    #       |> read_csv("darkmodule")
-    #       |> Kernel.==(rv)
-    #     end
+          version
+          |> read_csv("darkmodule")
+          |> Kernel.==(rv)
+        end
 
-    #   assert Enum.all?(result)
-    # end
+      assert Enum.all?(result)
+    end
   end
 
   defp read_csv(version, type) do
