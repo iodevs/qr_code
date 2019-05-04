@@ -20,12 +20,12 @@ defmodule QRCode.DataMasking do
         matrix
         |> Result.ok()
         |> Result.map(&make_mask_pattern(&1, mask_num))
-        |> Result.map(&Placement.add_finders(&1, version))
-        |> Result.map(&Placement.add_separators(&1, version))
-        |> Result.map(&Placement.add_reserved_areas(&1, version))
-        |> Result.map(&Placement.add_timings(&1, version))
-        |> Result.map(&Placement.add_alignments(&1, version))
-        |> Result.map(&Placement.add_dark_module(&1, version))
+        |> Result.and_then(&Placement.add_finders(&1, version))
+        |> Result.and_then(&Placement.add_separators(&1, version))
+        |> Result.and_then(&Placement.add_reserved_areas(&1, version))
+        |> Result.and_then(&Placement.add_timings(&1, version))
+        |> Result.and_then(&Placement.add_alignments(&1, version))
+        |> Result.and_then(&Placement.add_dark_module(&1, version))
       end)
 
     penalties =

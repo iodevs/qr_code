@@ -131,7 +131,10 @@ defmodule QRCode.FormatVersion do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  def put_information(%QR{matrix: matrix, version: version} = qr) when version(version) do
+  def put_information(
+        %QR{matrix: matrix, version: version, ecc_level: ecc_level, mask_num: mask_num} = qr
+      )
+      when version(version) do
     version_info =
       @version_table
       |> Enum.at(version - 7)
@@ -139,6 +142,7 @@ defmodule QRCode.FormatVersion do
     matrix
     |> Matrix.update(version_info, {0, 4 * version + 6})
     |> Result.and_then(&Matrix.update(&1, Matrix.transpose(version_info), {4 * version + 6, 0}))
+    |> Result.map(&set_format_info(&1, ecc_level, mask_num, version))
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
