@@ -3,8 +3,29 @@ defmodule QRCode.ErrorCorrection do
   Error correction code words and block information.
   """
 
-  alias QRCode.QR
+  alias QRCode.{QR, Polynom}
+  alias QRCode.GeneratorPolynomial, as: GP
   import QRCode.QR, only: [level: 1, version: 1]
+
+  @type groups() :: {[[], ...], [[]]}
+  @type codewords() :: groups()
+  @type t() :: %__MODULE__{
+          ec_codewrods_per_block: ExMaybe.t(integer()),
+          blocks_in_group1: ExMaybe.t(integer()),
+          codewords_per_block_in_group1: ExMaybe.t(integer()),
+          blocks_in_group2: ExMaybe.t(integer()),
+          codewords_per_block_in_group2: ExMaybe.t(integer()),
+          groups: ExMaybe.t(groups()),
+          codewords: ExMaybe.t(codewords())
+        }
+
+  defstruct ec_codewrods_per_block: nil,
+            blocks_in_group1: nil,
+            codewords_per_block_in_group1: nil,
+            blocks_in_group2: nil,
+            codewords_per_block_in_group2: nil,
+            groups: nil,
+            codewords: nil
 
   @ecc_table [
     [
@@ -257,30 +278,62 @@ defmodule QRCode.ErrorCorrection do
     |> compute_total_data_codewords()
   end
 
-  @spec put_ecc_groups(QR.t()) :: QR.t()
-  def put_ecc_groups(%QR{encoded: data, version: version, ecc_level: level} = qr)
+  @spec put(QR.t()) :: QR.t()
+  def put(%QR{encoded: data, version: version, ecc_level: level} = qr)
       when version(version) and level(level) do
-    {_, blocks_in_group1, codewords_in_group1, blocks_in_group2, codewords_in_group2} =
-      get_ecc_row(version, level)
+    %{
+      qr
+      | ecc:
+          %__MODULE__{}
+          |> put_info(version, level)
+          |> put_groups(data)
+          |> put_codewords()
+    }
+  end
 
-    bytes_in_group1 = blocks_in_group1 * codewords_in_group1
-    bytes_in_group2 = blocks_in_group2 * codewords_in_group2
+  defp put_info(%__MODULE__{} = ecc, version, level) do
+    {ec_codewrods_per_block, blocks_in_group1, codewords_in_group1, blocks_in_group2,
+     codewords_in_group2} = get_ecc_row(version, level)
+
+    %{
+      ecc
+      | ec_codewrods_per_block: ec_codewrods_per_block,
+        blocks_in_group1: blocks_in_group1,
+        codewords_per_block_in_group1: codewords_in_group1,
+        blocks_in_group2: blocks_in_group2,
+        codewords_per_block_in_group2: codewords_in_group2
+    }
+  end
+
+  defp put_groups(%__MODULE__{} = ecc, data) do
+    bytes_in_group1 = ecc.blocks_in_group1 * ecc.codewords_per_block_in_group1
+    bytes_in_group2 = ecc.blocks_in_group2 * ecc.codewords_per_block_in_group2
 
     <<data_group1::binary-size(bytes_in_group1), data_group2::binary-size(bytes_in_group2)>> =
       data
 
     %{
-      qr
+      ecc
       | groups:
-          {group(data_group1, blocks_in_group1, codewords_in_group1),
-           group(data_group2, blocks_in_group2, codewords_in_group2)}
+          {group(data_group1, ecc.blocks_in_group1, ecc.codewords_per_block_in_group1),
+           group(data_group2, ecc.blocks_in_group2, ecc.codewords_per_block_in_group2)}
     }
+  end
+
+  defp put_codewords(%__MODULE__{groups: {g1, g2}, ec_codewrods_per_block: codewords} = ecc) do
+    %{ecc | codewords: {compute_codewords(g1, codewords), compute_codewords(g2, codewords)}}
   end
 
   defp get_ecc_row(version, level) do
     @ecc_table
     |> Enum.at(version - 1)
     |> Keyword.get(level)
+  end
+
+  defp compute_codewords(group, codewords) do
+    divisor = GP.create(codewords)
+
+    Enum.map(group, &Polynom.div(&1, divisor))
   end
 
   defp compute_total_data_codewords(
@@ -303,7 +356,7 @@ defmodule QRCode.ErrorCorrection do
     []
   end
 
-  defp block(<<codeword::binary-size(1), rest::binary>>, codewords) do
+  defp block(<<codeword::size(8), rest::binary>>, codewords) do
     [codeword | block(rest, codewords - 1)]
   end
 end
