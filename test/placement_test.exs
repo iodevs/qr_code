@@ -1,4 +1,6 @@
 defmodule PlacementTest do
+  @moduledoc false
+
   use ExUnit.Case, async: true
   # doctest QRCode
 
