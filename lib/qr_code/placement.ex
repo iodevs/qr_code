@@ -126,9 +126,7 @@ defmodule QRCode.Placement do
   def add_timings(matrix, version) do
     row = get_timing_row(version)
 
-    row
-    |> Result.and_then(&Matrix.update_row(matrix, &1, {6, 8}))
-    |> Utils.put_to_list(row)
+    [row |> Result.and_then(&Matrix.update_row(matrix, &1, {6, 8})), row]
     |> Result.and_then_x(&Matrix.update_col(&1, Vector.transpose(&2), {8, 6}))
   end
 
@@ -202,7 +200,7 @@ defmodule QRCode.Placement do
   end
 
   defp reserved_area(val) do
-    Matrix.new({6, 3}, val)
+    {6, 3} |> Matrix.new(val) |> elem(1)
   end
 
   defp add_reserve_fia(matrix, version, val) do
@@ -219,12 +217,11 @@ defmodule QRCode.Placement do
   end
 
   defp add_reserve_via(matrix, version, val) do
-    transp = val |> reserved_area() |> Result.map(&Matrix.transpose(&1))
+    transp = val |> reserved_area() |> Matrix.transpose()
 
-    [matrix, reserved_area(val)]
-    |> Result.and_then_x(&Matrix.update(&1, &2, {0, 4 * version + 6}))
-    |> Utils.put_to_list(transp)
-    |> Result.and_then_x(&Matrix.update(&1, &2, {4 * version + 6, 0}))
+    matrix
+    |> Result.and_then(&Matrix.update(&1, reserved_area(val), {0, 4 * version + 6}))
+    |> Result.and_then(&Matrix.update(&1, transp, {4 * version + 6, 0}))
   end
 
   defp find_positions(version) do
