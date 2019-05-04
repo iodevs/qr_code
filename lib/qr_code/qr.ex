@@ -3,6 +3,8 @@ defmodule QRCode.QR do
   QR code data structure
   """
 
+  alias QRCode.ErrorCorrection
+
   @type level() :: :low | :medium | :quartile | :high
   @type version() :: 1..40
   @type mode() :: :numeric | :alphanumeric | :byte | :kanji | :eci
@@ -13,6 +15,7 @@ defmodule QRCode.QR do
           encoded: ExMaybe.t(binary()),
           version: ExMaybe.t(version()),
           ecc_level: level(),
+          ecc: ExMaybe.t(ErrorCorrection.t()),
           mode: mode(),
           groups: ExMaybe.t(groups())
           matrix: MatrixReloaded.Matrix.t(),
@@ -32,6 +35,7 @@ defmodule QRCode.QR do
             encoded: nil,
             version: nil,
             ecc_level: :low,
+            ecc: nil,
             mode: :byte,
             groups: nil
             matrix: [[]],
@@ -46,7 +50,7 @@ defmodule QRCode.QR do
     %__MODULE__{orig: orig, ecc_level: level}
     |> QRCode.ByteMode.put_version()
     |> Result.map(&QRCode.DataEncoding.byte_encode/1)
-    |> Result.map(&QRCode.ErrorCorrection.put_ecc_groups/1)
+    |> Result.map(&QRCode.ErrorCorrection.put/1)
 
     # |> Result.map(&QRCode.Placement.put_patterns/1)
     # |> Result.map(&QRCode.DataMasking.apply/1)

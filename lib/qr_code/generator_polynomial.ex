@@ -44,7 +44,7 @@ defmodule QRCode.GeneratorPolynomial do
   end
 
   defp multiply([0, root], poly) do
-    root_multiplied = Enum.map(poly, fn coef -> rem(coef + root, 255) end)
+    root_multiplied = Enum.map(poly, &GField.add(&1, root))
 
     [last | _] = Enum.reverse(root_multiplied)
 

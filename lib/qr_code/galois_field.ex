@@ -291,6 +291,22 @@ defmodule QRCode.GaloisField do
     |> second()
   end
 
+  @doc """
+  Add two alpha values in GF(256).
+
+  ## Example
+
+      iex> QRCode.GaloisField.add(10, 251)
+      6
+
+      iex> QRCode.GaloisField.add(10, 13)
+      23
+  """
+  @spec add(alpha(), alpha()) :: alpha()
+  def add(a1, a2) do
+    rem(a1 + a2, 255)
+  end
+
   defp first({val, _}) do
     val
   end
