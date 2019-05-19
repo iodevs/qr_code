@@ -18,9 +18,8 @@ defmodule QRCode.DataMasking do
       0..7
       |> Enum.map(fn mask_num ->
         matrix
-        |> Result.ok()
-        |> Result.map(&make_mask_pattern(&1, mask_num))
-        |> Result.and_then(&Placement.add_finders(&1, version))
+        |> make_mask_pattern(mask_num)
+        |> Placement.add_finders(version)
         |> Result.and_then(&Placement.add_separators(&1, version))
         |> Result.and_then(&Placement.add_reserved_areas(&1, version))
         |> Result.and_then(&Placement.add_timings(&1, version))
@@ -30,7 +29,7 @@ defmodule QRCode.DataMasking do
 
     penalties =
       masking_matrices
-      |> Enum.map(fn mat -> mat |> Result.and_then(&total_penalty(&1)) end)
+      |> Enum.map(fn mat -> Result.and_then(mat, &total_penalty(&1)) end)
 
     index =
       penalties

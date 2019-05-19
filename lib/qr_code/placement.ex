@@ -18,7 +18,7 @@ defmodule QRCode.Placement do
   """
 
   alias MatrixReloaded.{Matrix, Vector}
-  alias QRCode.{QR, Utils}
+  alias QRCode.QR
   import QRCode.QR, only: [version: 1]
 
   @locations [
