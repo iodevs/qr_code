@@ -1,7 +1,7 @@
 defmodule PlacementTest do
   @moduledoc false
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   # doctest QRCode
 
   alias MatrixReloaded.Matrix
