@@ -11,8 +11,8 @@ defmodule QRCode.DataMasking do
   alias QRCode.{Placement, QR}
   import QRCode.QR, only: [version: 1]
 
-  @spec aply(QR.t()) :: Result.t(String.t(), QR.t())
-  def aply(%QR{matrix: matrix, version: version} = qr)
+  @spec apply(QR.t()) :: Result.t(String.t(), QR.t())
+  def apply(%QR{matrix: matrix, version: version} = qr)
       when version(version) do
     masking_matrices =
       0..7

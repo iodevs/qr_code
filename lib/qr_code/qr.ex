@@ -48,7 +48,7 @@ defmodule QRCode.QR do
     |> Result.map(&QRCode.ErrorCorrection.put_ecc_groups/1)
 
     # |> Result.map(&QRCode.Placement.put_patterns/1)
-    # |> Result.map(&QRCode.DataMasking.aply/1)
+    # |> Result.map(&QRCode.DataMasking.apply/1)
     # |> Result.map(&QRCode.FormatVersion.put_information/1)
   end
 end
