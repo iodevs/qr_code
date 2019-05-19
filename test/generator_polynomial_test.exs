@@ -1,6 +1,6 @@
 defmodule GeneratorPolynomialTest do
   @moduledoc false
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use PropCheck
   doctest QRCode.GeneratorPolynomial
 

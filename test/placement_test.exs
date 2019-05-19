@@ -7,93 +7,124 @@ defmodule PlacementTest do
   alias MatrixReloaded.Matrix
   alias QRCode.Placement
 
-  @moduletag timeout: 300_000
+  @timeout 300_000
+  @moduletag timeout: @timeout
   @path_to_patterns "test/patterns/"
   @file_format ".csv"
 
   describe "Placement" do
     test "should check if finder patterns have correct position at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_finders(version)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_finders(version)
 
-        assert read_csv(version, "finder") == rv
-      end
+            read_csv(version, "finder") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
 
     test "should check if separator patterns have correct position at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_separators(version)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_separators(version)
 
-        assert read_csv(version, "separator") == rv
-      end
+            read_csv(version, "separator") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
 
     test "should check if reserved areas have correct position at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_reserved_areas(version, 1)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_reserved_areas(version, 1)
 
-        assert read_csv(version, "reserved_area") == rv
-      end
+            read_csv(version, "reserved_area") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
 
     test "should check if timing patterns have correct position at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_timings(version)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_timings(version)
 
-        assert read_csv(version, "timing") == rv
-      end
+            read_csv(version, "timing") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
 
     test "should check if alignment patterns have correct positions at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_alignments(version)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_alignments(version)
 
-        assert read_csv(version, "alignment") == rv
-      end
+            read_csv(version, "alignment") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
 
     test "should check if dark modules have correct position at qr matrix" do
-      for version <- 1..40 do
-        size = 4 * version + 17
+      tasks =
+        for version <- 1..40 do
+          Task.async(fn ->
+            size = 4 * version + 17
 
-        rv =
-          size
-          |> Matrix.new()
-          |> elem(1)
-          |> Placement.add_dark_module(version)
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> Placement.add_dark_module(version)
 
-        assert read_csv(version, "darkmodule") == rv
-      end
+            read_csv(version, "darkmodule") == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
   end
 
