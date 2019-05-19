@@ -17,19 +17,19 @@ defmodule QRCode.QR do
           ecc_level: level(),
           ecc: ExMaybe.t(ErrorCorrection.t()),
           mode: mode(),
-          groups: ExMaybe.t(groups())
+          groups: ExMaybe.t(groups()),
           matrix: MatrixReloaded.Matrix.t(),
           mask_num: mask_num()
         }
 
   @levels [:low, :medium, :quartile, :high]
-  @modes [
-    numeric: 0b0001,
-    alphanumeric: 0b0010,
-    byte: 0b0100,
-    kanji: 0b1000,
-    eci: 0b0111
-  ]
+  # @modes [
+  #   numeric: 0b0001,
+  #   alphanumeric: 0b0010,
+  #   byte: 0b0100,
+  #   kanji: 0b1000,
+  #   eci: 0b0111
+  # ]
 
   defstruct orig: nil,
             encoded: nil,
@@ -37,7 +37,7 @@ defmodule QRCode.QR do
             ecc_level: :low,
             ecc: nil,
             mode: :byte,
-            groups: nil
+            groups: nil,
             matrix: [[]],
             mask_num: 1
 
