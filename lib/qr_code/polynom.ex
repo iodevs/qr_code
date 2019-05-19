@@ -31,6 +31,7 @@ defmodule QRCode.Polynom do
   defp xor(dividend, divisor, acc \\ [])
   defp xor([], [], acc), do: Enum.reverse(acc)
   defp xor([], [b | divisor], acc), do: xor([], divisor, [b | acc])
+  defp xor([a | dividend], [], acc), do: xor(dividend, [], [a | acc])
   defp xor([a | dividend], [b | divisor], acc), do: xor(dividend, divisor, [a ^^^ b | acc])
 
   defp trim_leading_zero([0 | list], step) do
