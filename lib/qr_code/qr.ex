@@ -8,7 +8,7 @@ defmodule QRCode.QR do
   @type level() :: :low | :medium | :quartile | :high
   @type version() :: 1..40
   @type mode() :: :numeric | :alphanumeric | :byte | :kanji | :eci
-  @type mask_num() :: 1..7
+  @type mask_num() :: 0..7
   @type groups() :: {[[], ...], [[]]}
   @type t() :: %__MODULE__{
           orig: ExMaybe.t(String.t()),
@@ -39,11 +39,11 @@ defmodule QRCode.QR do
             mode: :byte,
             groups: nil,
             matrix: [[]],
-            mask_num: 1
+            mask_num: 0
 
   defguard level(lvl) when lvl in @levels
   defguard version(v) when v in 1..40
-  defguard masking(m) when m in 1..7
+  defguard masking(m) when m in 0..7
 
   @spec create(String.t(), level()) :: Result.t(String.t(), t())
   def create(orig, level \\ :low) when level(level) do

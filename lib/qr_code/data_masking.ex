@@ -37,7 +37,7 @@ defmodule QRCode.DataMasking do
 
     masking_matrices
     |> Enum.at(index)
-    |> Result.map(fn matrix -> %{qr | matrix: matrix, mask_num: index} end)
+    |> Result.and_then(fn matrix -> %{qr | matrix: matrix, mask_num: index} end)
   end
 
   defp make_mask_pattern(matrix, mask_num) do
