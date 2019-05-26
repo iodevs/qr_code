@@ -13,27 +13,32 @@ defmodule FormatVersionTest do
   @file_format ".csv"
 
   describe "FormatVersion" do
-    # test "should check if format patterns have correct position at qr matrix" do
-    #   tasks =
-    #     for version <- 1..6 do
-    #       Task.async(fn ->
-    #         size = 4 * version + 17
+    test "should check if format patterns have correct position at qr matrix" do
+      tasks =
+        for ecc_level <- ["L", "M", "Q", "H"], version <- 1..6, mask_num <- 0..7 do
+          Task.async(fn ->
+            file_name =
+              [
+                @path_to_patterns,
+                "pattern_format_#{ecc_level}_#{version}_mp_#{mask_num}",
+                @file_format
+              ]
+              |> Enum.join()
 
-    #         # ecc_level = L,M,Q,H
-    #         # mask_num = 0..7
-    #         # version = 1..6
-    #         rv =
-    #           size
-    #           |> Matrix.new()
-    #           |> elem(1)
-    #           |> FormatVersion.set_format_info(ecc_level, mask_num, version)
+            size = 4 * version + 17
 
-    #         read_csv(version, "format_info") == rv
-    #       end)
-    #     end
+            rv =
+              size
+              |> Matrix.new()
+              |> elem(1)
+              |> FormatVersion.set_format_info(convert(ecc_level), mask_num, version)
 
-    #   assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
-    # end
+            read_csv(file_name) == rv
+          end)
+        end
+
+      assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
+    end
 
     test "should check if version patterns have correct position at qr matrix" do
       tasks =
@@ -47,7 +52,11 @@ defmodule FormatVersionTest do
               |> elem(1)
               |> FormatVersion.set_version_info(version)
 
-            read_csv(version, "version") == rv
+            file_name =
+              [@path_to_patterns, "pattern_version_#{version}", @file_format]
+              |> Enum.join()
+
+            read_csv(file_name) == rv
           end)
         end
 
@@ -55,9 +64,24 @@ defmodule FormatVersionTest do
     end
   end
 
-  defp read_csv(version, type) do
-    [@path_to_patterns, "pattern_", type, "_", Kernel.to_string(version), @file_format]
-    |> Enum.join()
+  defp convert("L") do
+    :low
+  end
+
+  defp convert("M") do
+    :medium
+  end
+
+  defp convert("Q") do
+    :quartile
+  end
+
+  defp convert("H") do
+    :high
+  end
+
+  defp read_csv(file_name) do
+    file_name
     |> File.stream!()
     |> Stream.map(&String.trim(&1))
     |> Stream.map(&String.split(&1, ","))

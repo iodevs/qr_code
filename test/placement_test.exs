@@ -129,7 +129,7 @@ defmodule PlacementTest do
   end
 
   defp read_csv(version, type) do
-    [@path_to_patterns, "pattern_", type, "_", Kernel.to_string(version), @file_format]
+    [@path_to_patterns, "pattern_#{type}_#{version}", @file_format]
     |> Enum.join()
     |> File.stream!()
     |> Stream.map(&String.trim(&1))
