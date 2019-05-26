@@ -58,9 +58,11 @@ defmodule FormatVersionTest do
   defp read_csv(version, type) do
     [@path_to_patterns, "pattern_", type, "_", Kernel.to_string(version), @file_format]
     |> Enum.join()
-    |> CSVLixir.read()
+    |> File.stream!()
+    |> Stream.map(&String.trim(&1))
+    |> Stream.map(&String.split(&1, ","))
+    |> Stream.map(fn row -> row |> Stream.map(&String.to_integer/1) |> Enum.to_list() end)
     |> Enum.to_list()
-    |> Enum.map(fn row -> row |> Enum.map(&String.to_integer/1) end)
     |> Result.ok()
   end
 end

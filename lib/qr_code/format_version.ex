@@ -105,6 +105,8 @@ defmodule QRCode.FormatVersion do
     |> Result.and_then(fn matrix -> %{qr | matrix: matrix} end)
   end
 
+  @spec set_format_info(Matrix.t(), QR.level(), QR.mask_num(), QR.version()) ::
+          Result.t(String.t(), Matrix.t())
   def set_format_info(matrix, table_level, mask_num, version) do
     {row_1, row_2, col_1, col_2} = information_string(table_level, mask_num)
 
@@ -115,6 +117,7 @@ defmodule QRCode.FormatVersion do
     |> Result.and_then(&Matrix.update_col(&1, col_2, {0, 8}))
   end
 
+  @spec set_version_info(Matrix.t(), QR.version()) :: Result.t(String.t(), Matrix.t())
   def set_version_info(matrix, version) when version < 7 do
     matrix
   end
