@@ -108,13 +108,13 @@ defmodule QRCode.FormatVersion do
   @spec set_format_info(Matrix.t(), QR.level(), QR.mask_num(), QR.version()) ::
           Result.t(String.t(), Matrix.t())
   def set_format_info(matrix, table_level, mask_num, version) do
-    {row_1, row_2, col_1, col_2} = information_string(table_level, mask_num)
+    {row_left, row_right, col_top, col_bottom} = information_string(table_level, mask_num)
 
     matrix
-    |> Matrix.update_row(row_1, {8, 0})
-    |> Result.and_then(&Matrix.update_row(&1, row_2, {8, 4 * version + 9}))
-    |> Result.and_then(&Matrix.update_col(&1, col_1, {4 * version + 9, 8}))
-    |> Result.and_then(&Matrix.update_col(&1, col_2, {0, 8}))
+    |> Matrix.update_row(row_left, {8, 0})
+    |> Result.and_then(&Matrix.update_row(&1, row_right, {8, 4 * version + 9}))
+    |> Result.and_then(&Matrix.update_col(&1, col_top, {0, 8}))
+    |> Result.and_then(&Matrix.update_col(&1, col_bottom, {4 * version + 10, 8}))
   end
 
   @spec set_version_info(Matrix.t(), QR.version()) :: Result.t(String.t(), Matrix.t())
@@ -133,23 +133,33 @@ defmodule QRCode.FormatVersion do
   end
 
   defp information_string(table_level, mask_num) do
-    {format_1, format_2} =
+    row =
       table_level
       |> select_table()
       |> Enum.at(mask_num)
-      |> Enum.split(7)
 
-    format_1_added_1 =
-      format_1
+    row_left =
+      row
+      |> Enum.take(7)
       |> List.pop_at(-1)
-      |> (fn {last, list} -> Enum.concat(list, [1, last]) end).()
+      |> (fn {last, first} -> first ++ [0, last] end).()
 
-    format_2_added_1 =
-      format_2
+    row_right = row |> Enum.drop(7)
+
+    col_top =
+      row_right
       |> Enum.split(2)
-      |> (fn {first, rest} -> Enum.concat(first, [1 | rest]) end).()
+      |> (fn {first, rest} -> first ++ [0 | rest] end).()
+      |> Enum.reverse()
+      |> Vector.transpose()
 
-    {format_1_added_1, format_2, Vector.transpose(format_1), Vector.transpose(format_2_added_1)}
+    col_bottom =
+      row
+      |> Enum.take(7)
+      |> Enum.reverse()
+      |> Vector.transpose()
+
+    {row_left, row_right, col_top, col_bottom}
   end
 
   defp select_table(:low) do
