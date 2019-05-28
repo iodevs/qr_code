@@ -9,22 +9,12 @@ defmodule FormatVersionTest do
 
   @timeout 300_000
   @moduletag timeout: @timeout
-  @path_to_patterns "test/patterns/"
-  @file_format ".csv"
 
   describe "FormatVersion" do
     test "should check if format patterns have correct position at qr matrix" do
       tasks =
         for ecc_level <- ["L", "M", "Q", "H"], version <- 1..6, mask_num <- 0..7 do
           Task.async(fn ->
-            file_name =
-              [
-                @path_to_patterns,
-                "pattern_format_#{ecc_level}_#{version}_mp_#{mask_num}",
-                @file_format
-              ]
-              |> Enum.join()
-
             size = 4 * version + 17
 
             rv =
@@ -33,7 +23,7 @@ defmodule FormatVersionTest do
               |> elem(1)
               |> FormatVersion.set_format_info(convert(ecc_level), mask_num, version)
 
-            read_csv(file_name) == rv
+            Csv.read_file("format_#{ecc_level}_#{version}_mp_#{mask_num}") == rv
           end)
         end
 
@@ -52,11 +42,7 @@ defmodule FormatVersionTest do
               |> elem(1)
               |> FormatVersion.set_version_info(version)
 
-            file_name =
-              [@path_to_patterns, "pattern_version_#{version}", @file_format]
-              |> Enum.join()
-
-            read_csv(file_name) == rv
+            Csv.read_file("version_#{version}") == rv
           end)
         end
 
@@ -78,15 +64,5 @@ defmodule FormatVersionTest do
 
   defp convert("H") do
     :high
-  end
-
-  defp read_csv(file_name) do
-    file_name
-    |> File.stream!()
-    |> Stream.map(&String.trim(&1))
-    |> Stream.map(&String.split(&1, ","))
-    |> Stream.map(fn row -> row |> Stream.map(&String.to_integer/1) |> Enum.to_list() end)
-    |> Enum.to_list()
-    |> Result.ok()
   end
 end

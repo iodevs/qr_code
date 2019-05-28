@@ -102,7 +102,7 @@ defmodule QRCode.FormatVersion do
     matrix
     |> set_format_info(ecc_level, mask_num, version)
     |> Result.map(&set_version_info(&1, version))
-    |> Result.and_then(fn matrix -> %{qr | matrix: matrix} end)
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
   @spec set_format_info(Matrix.t(), QR.level(), QR.mask_num(), QR.version()) ::
