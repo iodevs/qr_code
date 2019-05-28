@@ -9,8 +9,6 @@ defmodule PlacementTest do
 
   @timeout 300_000
   @moduletag timeout: @timeout
-  @path_to_patterns "test/patterns/"
-  @file_format ".csv"
 
   describe "Placement" do
     test "should check if finder patterns have correct position at qr matrix" do
@@ -25,7 +23,7 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_finders(version)
 
-            read_csv(version, "finder") == rv
+            Csv.read_file("finder_#{version}") == rv
           end)
         end
 
@@ -44,7 +42,7 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_separators(version)
 
-            read_csv(version, "separator") == rv
+            Csv.read_file("separator_#{version}") == rv
           end)
         end
 
@@ -63,7 +61,7 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_reserved_areas(version, 1)
 
-            read_csv(version, "reserved_area") == rv
+            Csv.read_file("reserved_area_#{version}") == rv
           end)
         end
 
@@ -82,7 +80,7 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_timings(version)
 
-            read_csv(version, "timing") == rv
+            Csv.read_file("timing_#{version}") == rv
           end)
         end
 
@@ -101,7 +99,7 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_alignments(version)
 
-            read_csv(version, "alignment") == rv
+            Csv.read_file("alignment_#{version}") == rv
           end)
         end
 
@@ -120,22 +118,11 @@ defmodule PlacementTest do
               |> elem(1)
               |> Placement.add_dark_module(version)
 
-            read_csv(version, "darkmodule") == rv
+            Csv.read_file("darkmodule_#{version}") == rv
           end)
         end
 
       assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
     end
-  end
-
-  defp read_csv(version, type) do
-    [@path_to_patterns, "pattern_#{type}_#{version}", @file_format]
-    |> Enum.join()
-    |> File.stream!()
-    |> Stream.map(&String.trim(&1))
-    |> Stream.map(&String.split(&1, ","))
-    |> Stream.map(fn row -> row |> Stream.map(&String.to_integer/1) |> Enum.to_list() end)
-    |> Enum.to_list()
-    |> Result.ok()
   end
 end

@@ -84,7 +84,7 @@ defmodule QRCode.Placement do
     |> Result.and_then(&add_alignments(&1, version, @alignment))
     |> Result.and_then(&add_dark_module(&1, version, @dark_module))
     |> Result.map(&fill_matrix_by_data(&1, size, encoding_data))
-    |> Result.and_then(fn matrix -> %{qr | matrix: matrix} end)
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
   @spec add_finders(Matrix.t(), QR.version(), Matrix.t()) :: Result.t(String.t(), Matrix.t())
