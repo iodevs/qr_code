@@ -1,6 +1,6 @@
 defmodule MessageTest do
   @moduledoc false
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest QRCode.Message
 
   alias QRCode.{QR, Message}
