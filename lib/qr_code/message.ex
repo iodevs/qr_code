@@ -59,7 +59,7 @@ defmodule QRCode.Message do
           |> Enum.concat(c2)
           |> flatten(flatten(g1 ++ g2))
           |> Enum.reverse()
-          |> List.to_string()
+          |> to_bitstring()
           |> add_remainder(version)
     }
   end
@@ -84,5 +84,12 @@ defmodule QRCode.Message do
     list
     |> Enum.reverse()
     |> flatten(acc)
+  end
+
+  defp to_bitstring(list, acc \\ <<>>)
+  defp to_bitstring([], acc), do: acc
+
+  defp to_bitstring([h | t], acc) do
+    to_bitstring(t, <<acc::bitstring, h::size(8)>>)
   end
 end
