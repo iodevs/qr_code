@@ -16,8 +16,8 @@ defmodule QRCode.QR do
           version: ExMaybe.t(version()),
           ecc_level: level(),
           ecc: ExMaybe.t(ErrorCorrection.t()),
+          message: ExMaybe.t(String.t()),
           mode: mode(),
-          groups: ExMaybe.t(groups()),
           matrix: MatrixReloaded.Matrix.t(),
           mask_num: mask_num()
         }
@@ -36,8 +36,8 @@ defmodule QRCode.QR do
             version: nil,
             ecc_level: :low,
             ecc: nil,
+            message: nil,
             mode: :byte,
-            groups: nil,
             matrix: [[]],
             mask_num: 0
 
@@ -51,6 +51,7 @@ defmodule QRCode.QR do
     |> QRCode.ByteMode.put_version()
     |> Result.map(&QRCode.DataEncoding.byte_encode/1)
     |> Result.map(&QRCode.ErrorCorrection.put/1)
+    |> Result.map(&QRCode.Message.put/1)
 
     # |> Result.map(&QRCode.Placement.put_patterns/1)
     # |> Result.map(&QRCode.DataMasking.apply/1)
