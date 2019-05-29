@@ -50,7 +50,7 @@ defmodule QRCode.Message do
     40 => 0
   }
 
-  # @spec put(QR.t()) :: QR.t()
+  @spec put(QR.t()) :: QR.t()
   def put(%QR{version: version, ecc: %ECC{groups: {g1, g2}, codewords: {c1, c2}}} = qr) do
     %QR{
       qr
