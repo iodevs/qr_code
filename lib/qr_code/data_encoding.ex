@@ -48,11 +48,11 @@ defmodule QRCode.DataEncoding do
   defp add_terminator(codeword, qr) do
     diff = diff_total_number_and_bit_size_cw(codeword, qr)
 
-    case abs(diff) do
+    case diff do
       1 -> <<codeword::bitstring, (<<0::size(1)>>)>>
       2 -> <<codeword::bitstring, (<<0::size(2)>>)>>
       3 -> <<codeword::bitstring, (<<0::size(3)>>)>>
-      _ -> <<codeword::bitstring, (<<0::size(4)>>)>>
+      x when x >= 4 -> <<codeword::bitstring, (<<0::size(4)>>)>>
     end
   end
 
