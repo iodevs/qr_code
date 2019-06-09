@@ -189,6 +189,8 @@ defmodule Generators.QR do
     end
   end
 
+  def get_capacity_for(_level, 0), do: 0
+
   def get_capacity_for(level, version) do
     @capacities[level][version]
   end
