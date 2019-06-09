@@ -6,6 +6,7 @@ defmodule MessageTest do
 
   alias QRCode.{QR, Message}
   alias QRCode.ErrorCorrection, as: ECC
+  alias Generators.QR, as: QRGenerator
 
   @remainder_bits %{
     1 => 0,
@@ -419,14 +420,6 @@ defmodule MessageTest do
   end
 
   # Generators
-  defp level() do
-    oneof([
-      :low,
-      :medium,
-      :quartile,
-      :high
-    ])
-  end
 
   defp codewords(blocks_in_group1, blocks_in_group2, codewords_per_block) do
     let cw <-
@@ -445,7 +438,7 @@ defmodule MessageTest do
   end
 
   defp qr() do
-    let {version, level} <- {range(1, 40), level()} do
+    let {version, level} <- {QRGenerator.version(), QRGenerator.level()} do
       {ec_codewrods_per_block, blocks_in_group1, codewords_in_group1, blocks_in_group2,
        codewords_in_group2} = @ecc_table[version][level]
 

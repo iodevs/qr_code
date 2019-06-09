@@ -1,11 +1,7 @@
-defmodule ByteModeTest do
+defmodule Generators.QR do
   @moduledoc false
-  use ExUnit.Case
-  use PropCheck
-  doctest QRCode.ByteMode
 
-  alias QRCode.{ByteMode, QR}
-  alias Generators.QR, as: QRGenerator
+  use PropCheck
 
   @capacities %{
     low: %{
@@ -177,36 +173,23 @@ defmodule ByteModeTest do
       40 => 1273
     }
   }
-  # Tests
 
-  # Properties
+  def level() do
+    oneof([
+      :low,
+      :medium,
+      :quartile,
+      :high
+    ])
+  end
 
-  property "should find proper version" do
-    forall qr <- qr() do
-      qr
-      |> ByteMode.put_version()
-      |> check_version(qr.orig, qr.ecc_level)
+  def version() do
+    let version <- range(1, 40) do
+      version
     end
   end
 
-  # Helpers
-
-  defp check_version({:ok, qr}, message, level) do
-    byte_size(message) <= @capacities[level][qr.version]
-  end
-
-  defp check_version({:error, _msg}, message, level) do
-    byte_size(message) > @capacities[level][40]
-  end
-
-  # Generators
-
-  defp qr() do
-    let {level, message} <- {QRGenerator.level(), utf8(1500)} do
-      %QR{
-        ecc_level: level,
-        orig: message
-      }
-    end
+  def get_capacity_for(level, version) do
+    @capacities[level][version]
   end
 end
