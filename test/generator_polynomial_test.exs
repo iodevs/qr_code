@@ -6,6 +6,7 @@ defmodule GeneratorPolynomialTest do
 
   alias QRCode.GeneratorPolynomial, as: GP
 
+  @tag timeout: 120_000
   property "should return alpha values" do
     forall degree <- integer(1, 254) do
       poly = GP.create(degree)
