@@ -35,6 +35,14 @@ defmodule DataEncodingTest do
     end
   end
 
+  property "should fill pad bytes" do
+    forall qr <- qr() do
+      qr
+      |> DataEncoding.byte_encode()
+      |> check_pad_bytes()
+    end
+  end
+
   # Helpers
 
   defp check_mode_indicator(%QR{encoded: <<0b0100::size(4), _::bitstring>>}) do
@@ -59,6 +67,60 @@ defmodule DataEncodingTest do
 
   defp check_total_length(qr) do
     byte_size(qr.encoded) == ErrorCorrection.total_data_codewords(qr)
+  end
+
+  defp check_pad_bytes(%QR{version: version} = qr) when version < 10 do
+    count = byte_size(qr.orig) * 8
+
+    <<0b0100::size(4), _c::size(8), _msg::size(count), 0b0000::size(4), rest::bitstring>> =
+      qr.encoded
+
+    rest_count = byte_size(rest)
+
+    case {div(rest_count, 2), rem(rest_count, 2)} do
+      {0, 0} ->
+        rest == <<>>
+
+      {x, 0} ->
+        rest ==
+          <<236, 17>>
+          |> List.duplicate(x)
+          |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+
+      {x, 1} ->
+        rest ==
+          <<236, 17>>
+          |> List.duplicate(x)
+          |> Enum.concat([<<236>>])
+          |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+    end
+  end
+
+  defp check_pad_bytes(%QR{} = qr) do
+    count = byte_size(qr.orig) * 8
+
+    <<0b0100::size(4), _c::size(16), _msg::size(count), 0b0000::size(4), rest::bitstring>> =
+      qr.encoded
+
+    rest_count = byte_size(rest)
+
+    case {div(rest_count, 2), rem(rest_count, 2)} do
+      {0, 0} ->
+        rest == <<>>
+
+      {x, 0} ->
+        rest ==
+          <<236, 17>>
+          |> List.duplicate(x)
+          |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+
+      {x, 1} ->
+        rest ==
+          <<236, 17>>
+          |> List.duplicate(x)
+          |> Enum.concat([<<236>>])
+          |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+    end
   end
 
   # Generators
