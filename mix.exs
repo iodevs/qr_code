@@ -39,7 +39,7 @@ defmodule QRCode.MixProject do
       {:ex_maybe, "~> 1.0.1"},
       {:ex_doc, "~> 0.19.3", only: :dev},
       {:credo, "~> 1.0.1", only: [:dev, :test]},
-      {:excoveralls, "~> 0.10.4", only: :test},
+      {:excoveralls, "~> 0.10.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
       {:xml_builder, "~> 2.1.1"},
       {:csvlixir, "~> 2.0.4"},
