@@ -10,40 +10,32 @@ defmodule QRCode.Polynom do
 
   @spec div([GF.value()], GP.polynomial()) :: [GF.value()]
   def div(dividend, divisor) do
-    div(dividend, divisor, Enum.count(dividend))
+    dividend
+    |> Stream.iterate(&do_div(&1, divisor))
+    |> Enum.at(Enum.count(dividend))
+    |> fill_to_degree(Enum.count(divisor) - 1)
   end
 
-  defp div(dividend, _, 0), do: dividend
+  defp do_div([0 | t], _), do: t
 
-  defp div([first | _] = dividend, divisor, step) do
-    multipled_divisor =
-      Enum.map(divisor, fn val -> val |> GF.add(GF.to_a(first)) |> GF.to_i() end)
-
-    {result, step} =
-      dividend
-      |> xor(multipled_divisor)
-      |> trim_leading_zero(step)
-      |> fill_to_degree(Enum.count(divisor) - 1)
-
-    div(result, divisor, step)
+  defp do_div([first | _] = dividend, divisor) do
+    divisor
+    |> Enum.map(fn val -> val |> GF.add(GF.to_a(first)) |> GF.to_i() end)
+    |> zip(dividend)
+    |> Enum.map(fn {a, b} -> a ^^^ b end)
+    |> tl()
   end
 
-  defp xor(dividend, divisor, acc \\ [])
-  defp xor([], [], acc), do: Enum.reverse(acc)
-  defp xor([], [b | divisor], acc), do: xor([], divisor, [b | acc])
-  defp xor([a | dividend], [], acc), do: xor(dividend, [], [a | acc])
-  defp xor([a | dividend], [b | divisor], acc), do: xor(dividend, divisor, [a ^^^ b | acc])
+  defp zip(left, right) do
+    [short, long] = Enum.sort_by([left, right], &length/1)
 
-  defp trim_leading_zero([0 | list], step) do
-    trim_leading_zero(list, step - 1)
+    short
+    |> Stream.concat(Stream.cycle([0]))
+    |> Stream.zip(long)
   end
 
-  defp trim_leading_zero(list, step) do
-    {list, step}
-  end
-
-  defp fill_to_degree({list, step}, degree) when length(list) < degree do
-    {list ++ List.duplicate(0, degree - Enum.count(list)), step}
+  defp fill_to_degree(list, degree) when length(list) < degree do
+    list ++ List.duplicate(0, degree - Enum.count(list))
   end
 
   defp fill_to_degree(result, _) do

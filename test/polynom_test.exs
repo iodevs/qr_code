@@ -13,9 +13,85 @@ defmodule PolynomTest do
     end
   end
 
+  property "should has result with correct number of terms" do
+    forall {degree, msg} <- {integer(1, 68), list(byte())} do
+      msg
+      |> Polynom.div(GP.create(degree))
+      |> chceck_degree(degree)
+    end
+  end
+
+  # Helpers
+
+  defp chceck_degree(result, degree) do
+    length(result) == degree
+  end
+
   # Generators
   defp examples() do
     oneof([
+      {
+        [
+          122,
+          164,
+          87,
+          113,
+          7,
+          246,
+          187,
+          225,
+          140,
+          37,
+          138,
+          184,
+          190,
+          109,
+          152,
+          57,
+          10,
+          21,
+          3,
+          1,
+          140,
+          121,
+          29,
+          20,
+          80
+        ],
+        [
+          0,
+          160,
+          11,
+          203,
+          30,
+          9,
+          168,
+          142,
+          17,
+          154,
+          199,
+          21,
+          178,
+          53,
+          138,
+          13,
+          139,
+          171,
+          212,
+          226,
+          58,
+          162,
+          108,
+          195,
+          198,
+          25,
+          75,
+          151,
+          101,
+          68
+        ],
+        30
+      },
       {
         [64, 86, 22, 134, 246, 166, 240, 236, 17, 236, 17, 236, 17, 236, 17, 236, 17, 236, 17],
         [151, 167, 214, 123, 140, 176, 135],
