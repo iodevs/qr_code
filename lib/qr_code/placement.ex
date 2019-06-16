@@ -72,7 +72,7 @@ defmodule QRCode.Placement do
   @correct_separator Vector.row(8)
 
   @spec put_patterns(QR.t()) :: Result.t(String.t(), QR.t())
-  def put_patterns(%QR{version: version, encoded: encoding_data} = qr) when version(version) do
+  def put_patterns(%QR{version: version, message: message} = qr) when version(version) do
     size = (version - 1) * 4 + 21
 
     size
@@ -83,7 +83,7 @@ defmodule QRCode.Placement do
     |> Result.and_then(&add_timings(&1, version, @timing))
     |> Result.and_then(&add_alignments(&1, version, @alignment))
     |> Result.and_then(&add_dark_module(&1, version, @dark_module))
-    |> Result.map(&fill_matrix_by_data(&1, size, encoding_data))
+    |> Result.map(&fill_matrix_by_data(&1, size, message))
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
@@ -167,11 +167,11 @@ defmodule QRCode.Placement do
     Matrix.update_element(matrix, val, {4 * version + 9, 8})
   end
 
-  defp fill_matrix_by_data(matrix, size, encoding_data) do
+  defp fill_matrix_by_data(matrix, size, message) do
     (size - 1)..7
     |> Enum.take_every(2)
     |> Enum.concat([5, 3, 1])
-    |> Enum.map_reduce({matrix, encoding_data}, fn col, acc ->
+    |> Enum.map_reduce({matrix, message}, fn col, acc ->
       {col, make_fill(acc, [col, col - 1])}
     end)
     |> Kernel.elem(1)
