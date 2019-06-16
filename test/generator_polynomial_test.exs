@@ -15,6 +15,7 @@ defmodule GeneratorPolynomialTest do
     end
   end
 
+  @tag timeout: 120_000
   property "should have degree+1 values" do
     forall degree <- integer(1, 254) do
       count = Enum.count(GP.create(degree))
