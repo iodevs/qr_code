@@ -52,9 +52,9 @@ defmodule QRCode.QR do
     |> Result.map(&QRCode.DataEncoding.byte_encode/1)
     |> Result.map(&QRCode.ErrorCorrection.put/1)
     |> Result.map(&QRCode.Message.put/1)
+    |> Result.and_then(&QRCode.Placement.put_patterns/1)
+    |> Result.and_then(&QRCode.DataMasking.apply/1)
 
-    # |> Result.map(&QRCode.Placement.put_patterns/1)
-    # |> Result.map(&QRCode.DataMasking.apply/1)
     # |> Result.map(&QRCode.FormatVersion.put_information/1)
   end
 end
