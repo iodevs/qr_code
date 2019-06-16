@@ -14,47 +14,52 @@ defmodule QRCode.DataMasking do
   @spec apply(QR.t()) :: Result.t(String.t(), QR.t())
   def apply(%QR{matrix: matrix, version: version} = qr)
       when version(version) do
-    masking_matrices =
-      0..7
-      |> Enum.map(fn mask_num ->
-        matrix
-        |> make_mask_pattern(mask_num)
-        |> Placement.add_finders(version)
-        |> Result.and_then(&Placement.add_separators(&1, version))
-        |> Result.and_then(&Placement.add_reserved_areas(&1, version))
-        |> Result.and_then(&Placement.add_timings(&1, version))
-        |> Result.and_then(&Placement.add_alignments(&1, version))
-        |> Result.and_then(&Placement.add_dark_module(&1, version))
-      end)
+    masked_matrices = masking_matrices(matrix, version)
+    penalties = masked_matrices |> Result.map(&total_penalties(&1))
+    index = penalties |> Result.map(&index_best_mask(&1))
+    lowest_penalty_matrix = masked_matrices |> Result.map2(index, &best_mask(&1, &2))
 
-    penalties =
-      masking_matrices
-      |> Enum.map(fn mat -> Result.and_then(mat, &total_penalty(&1)) end)
-
-    index =
-      penalties
-      |> Enum.find_index(fn pen -> pen == Enum.min(penalties) end)
-
-    masking_matrices
-    |> Enum.at(index)
-    |> Result.map(fn matrix -> %{qr | matrix: matrix, mask_num: index} end)
+    [lowest_penalty_matrix, index]
+    |> Result.and_then_x(fn matrix, index -> %{qr | matrix: matrix, mask_num: index} end)
   end
 
-  defp make_mask_pattern(matrix, mask_num) do
-    matrix
-    |> Enum.with_index()
-    |> Enum.map(fn {row, i} ->
-      row
-      |> Enum.with_index()
-      |> Enum.map(fn {val, j} -> mask_pattern(val, i, j, mask_num) end)
+  @spec masking_matrices(Matrix.t(), QR.version()) :: Result.t(String.t(), list(Matrix.t()))
+  def masking_matrices(matrix, version) do
+    0..7
+    |> Enum.map(fn mask_num ->
+      matrix
+      |> make_mask_pattern(mask_num)
+      |> Placement.add_finders(version)
+      |> Result.and_then(&Placement.add_separators(&1, version))
+      |> Result.and_then(&Placement.add_reserved_areas(&1, version))
+      |> Result.and_then(&Placement.add_timings(&1, version))
+      |> Result.and_then(&Placement.add_alignments(&1, version))
+      |> Result.and_then(&Placement.add_dark_module(&1, version))
     end)
+    |> Result.fold()
   end
 
-  defp total_penalty(matrix) do
+  @spec total_penalties(list(Matrix.t())) :: list(pos_integer())
+  def total_penalties(matrices) do
+    Enum.map(matrices, &total_penalty/1)
+  end
+
+  @spec index_best_mask(list(pos_integer())) :: non_neg_integer()
+  def index_best_mask(penalties) do
+    Enum.find_index(penalties, fn pen -> pen == Enum.min(penalties) end)
+  end
+
+  @spec best_mask(list(Matrix.t()), non_neg_integer()) :: Matrix.t()
+  defp best_mask(matrices, index) do
+    Enum.at(matrices, index)
+  end
+
+  @spec total_penalty(Matrix.t()) :: pos_integer()
+  def total_penalty(matrix) do
     Enum.reduce(1..4, 0, fn pen, sum -> penalty(matrix, pen) + sum end)
   end
 
-  defp penalty(matrix, 1) do
+  def penalty(matrix, 1) do
     row_pen =
       matrix
       |> compute_penalty_1()
@@ -67,12 +72,12 @@ defmodule QRCode.DataMasking do
     row_pen + col_pen
   end
 
-  defp penalty(matrix, 2) do
+  def penalty(matrix, 2) do
     matrix
     |> compute_penalty_2()
   end
 
-  defp penalty(matrix, 3) do
+  def penalty(matrix, 3) do
     row_pen =
       matrix
       |> compute_penalty_3()
@@ -85,7 +90,7 @@ defmodule QRCode.DataMasking do
     row_pen + col_pen
   end
 
-  defp penalty(matrix, 4) do
+  def penalty(matrix, 4) do
     {rs, cs} = Matrix.size(matrix)
 
     dark_modules =
@@ -104,6 +109,16 @@ defmodule QRCode.DataMasking do
         Kernel.abs(percent_of_dark - reminder - 45) / 5
       ) * 10
     )
+  end
+
+  defp make_mask_pattern(matrix, mask_num) do
+    matrix
+    |> Enum.with_index()
+    |> Enum.map(fn {row, i} ->
+      row
+      |> Enum.with_index()
+      |> Enum.map(fn {val, j} -> mask_pattern(val, i, j, mask_num) end)
+    end)
   end
 
   defp compute_penalty_1(matrix) do
