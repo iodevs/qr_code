@@ -15,8 +15,12 @@ defmodule QRCode.DataMasking do
   def apply(%QR{matrix: matrix, version: version} = qr)
       when version(version) do
     masked_matrices = masking_matrices(matrix, version)
-    penalties = masked_matrices |> Result.map(&total_penalties(&1))
-    index = penalties |> Result.map(&index_best_mask(&1))
+
+    index =
+      masked_matrices
+      |> Result.map(&total_penalties(&1))
+      |> Result.map(&index_best_mask(&1))
+
     lowest_penalty_matrix = masked_matrices |> Result.map2(index, &best_mask(&1, &2))
 
     [lowest_penalty_matrix, index]
@@ -59,6 +63,7 @@ defmodule QRCode.DataMasking do
     Enum.reduce(1..4, 0, fn pen, sum -> penalty(matrix, pen) + sum end)
   end
 
+  @spec penalty(Matrix.t(), 1 | 2 | 3 | 4) :: non_neg_integer()
   def penalty(matrix, 1) do
     row_pen =
       matrix
