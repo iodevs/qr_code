@@ -11,6 +11,7 @@ defmodule QRCode.MixProject do
       start_permanent: Mix.env() == :prod,
       description: "Library for generating QR code.",
       deps: deps(),
+      package: package(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -45,6 +46,19 @@ defmodule QRCode.MixProject do
       {:csvlixir, "~> 2.0.4"},
       {:matrix_reloaded, "~> 2.2.1"},
       {:propcheck, "~> 1.1", only: :test}
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: [
+        "Jindrich K. Smitka <smitka.j@gmail.com>",
+        "Ondrej Tucek <ondrej.tucek@gmail.com>"
+      ],
+      licenses: ["BSD-4-Clause"],
+      links: %{
+        "GitHub" => "https://github.com/iodevs/qr_code"
+      }
     ]
   end
 
