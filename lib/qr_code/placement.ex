@@ -87,6 +87,18 @@ defmodule QRCode.Placement do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
+  @spec replace_placeholders(QR.t()) :: Result.t(String.t(), QR.t())
+  def replace_placeholders(%QR{matrix: matrix, version: version} = qr) when version(version) do
+    matrix
+    |> add_finders(version)
+    |> Result.and_then(&add_separators(&1, version))
+    |> Result.and_then(&add_reserved_areas(&1, version))
+    |> Result.and_then(&add_timings(&1, version))
+    |> Result.and_then(&add_alignments(&1, version))
+    |> Result.and_then(&add_dark_module(&1, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
+  end
+
   @spec add_finders(Matrix.t(), QR.version(), Matrix.t()) :: Result.t(String.t(), Matrix.t())
   def add_finders(matrix, version, finder \\ @correct_finder) do
     matrix
@@ -187,15 +199,14 @@ defmodule QRCode.Placement do
   end
 
   defp fill_row(row, acc_row, cols) do
-    row
-    |> Enum.with_index()
-    |> Enum.map_reduce(acc_row, fn {val, j}, acc_col ->
-      if j in cols and val == 0 do
-        <<cw::size(1), rest_bin::bitstring>> = acc_col
-        {cw, rest_bin}
-      else
-        {val, acc_col}
-      end
+    Enum.reduce(cols, {row, acc_row}, fn
+      col, {row, msg} ->
+        if Enum.at(row, col) == 0 do
+          <<cw::size(1), rest::bitstring>> = msg
+          {List.update_at(row, col, fn _ -> cw end), rest}
+        else
+          {row, msg}
+        end
     end)
   end
 
