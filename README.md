@@ -8,7 +8,7 @@
 ```elixir
 def deps do
   [
-    {:qr_code, "~> 1.0.3", hex: :qr}
+    {:qr_code, "~> 1.0.4", hex: :qr}
   ]
 end
 ```
