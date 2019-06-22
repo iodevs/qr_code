@@ -51,6 +51,7 @@ defmodule QRCode.MixProject do
 
   defp package do
     [
+      name: "qr",
       maintainers: [
         "Jindrich K. Smitka <smitka.j@gmail.com>",
         "Ondrej Tucek <ondrej.tucek@gmail.com>"
