@@ -83,7 +83,7 @@ defmodule QRCode.Placement do
     |> Result.and_then(&add_timings(&1, version, @timing))
     |> Result.and_then(&add_alignments(&1, version, @alignment))
     |> Result.and_then(&add_dark_module(&1, version, @dark_module))
-    |> Result.map(&fill_matrix_by_data(&1, size, message))
+    |> Result.map(&fill_matrix_by_message(&1, size, message))
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
@@ -179,7 +179,7 @@ defmodule QRCode.Placement do
     Matrix.update_element(matrix, val, {4 * version + 9, 8})
   end
 
-  defp fill_matrix_by_data(matrix, size, message) do
+  defp fill_matrix_by_message(matrix, size, message) do
     (size - 1)..7
     |> Enum.take_every(2)
     |> Enum.concat([5, 3, 1])
