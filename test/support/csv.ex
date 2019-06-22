@@ -14,4 +14,13 @@ defmodule Csv do
     |> Enum.to_list()
     |> Result.ok()
   end
+
+  def save_csv(matrix, file_name \\ "tmp/qr_code.csv") do
+    file_name
+    |> File.open([:write], fn file ->
+      matrix
+      |> CSVLixir.write()
+      |> Enum.each(&IO.write(file, &1))
+    end)
+  end
 end
