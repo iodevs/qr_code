@@ -11,36 +11,26 @@ defmodule QRCode.DataMasking do
   alias QRCode.{Placement, QR}
   import QRCode.QR, only: [version: 1]
 
-  @spec apply(QR.t()) :: Result.t(String.t(), QR.t())
+  @spec apply(QR.t()) :: QR.t()
   def apply(%QR{matrix: matrix, version: version} = qr)
       when version(version) do
-    masked_matrices = masking_matrices(matrix, version)
+    masked_matrices = masking_matrices(matrix)
 
     index =
       masked_matrices
-      |> Result.map(&total_penalties(&1))
-      |> Result.map(&index_best_mask(&1))
+      |> total_penalties()
+      |> index_best_mask()
 
-    lowest_penalty_matrix = masked_matrices |> Result.map2(index, &best_mask(&1, &2))
-
-    [lowest_penalty_matrix, index]
-    |> Result.and_then_x(fn matrix, index -> %{qr | matrix: matrix, mask_num: index} end)
+    %{qr | matrix: best_mask(masked_matrices, index), mask_num: index}
   end
 
-  @spec masking_matrices(Matrix.t(), QR.version()) :: Result.t(String.t(), list(Matrix.t()))
-  def masking_matrices(matrix, version) do
+  @spec masking_matrices(Matrix.t()) :: list(Matrix.t())
+  def masking_matrices(matrix) do
     0..7
     |> Enum.map(fn mask_num ->
       matrix
       |> make_mask_pattern(mask_num)
-      |> Placement.add_finders(version)
-      |> Result.and_then(&Placement.add_separators(&1, version))
-      |> Result.and_then(&Placement.add_reserved_areas(&1, version))
-      |> Result.and_then(&Placement.add_timings(&1, version))
-      |> Result.and_then(&Placement.add_alignments(&1, version))
-      |> Result.and_then(&Placement.add_dark_module(&1, version))
     end)
-    |> Result.fold()
   end
 
   @spec total_penalties(list(Matrix.t())) :: list(pos_integer())
@@ -54,7 +44,7 @@ defmodule QRCode.DataMasking do
   end
 
   @spec best_mask(list(Matrix.t()), non_neg_integer()) :: Matrix.t()
-  defp best_mask(matrices, index) do
+  def best_mask(matrices, index) do
     Enum.at(matrices, index)
   end
 
