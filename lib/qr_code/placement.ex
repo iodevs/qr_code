@@ -87,6 +87,18 @@ defmodule QRCode.Placement do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
+  @spec replace_placeholders(QR.t()) :: Result.t(String.t(), QR.t())
+  def replace_placeholders(%QR{matrix: matrix, version: version} = qr) when version(version) do
+    matrix
+    |> add_finders(version)
+    |> Result.and_then(&add_separators(&1, version))
+    |> Result.and_then(&add_reserved_areas(&1, version))
+    |> Result.and_then(&add_timings(&1, version))
+    |> Result.and_then(&add_alignments(&1, version))
+    |> Result.and_then(&add_dark_module(&1, version))
+    |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
+  end
+
   @spec add_finders(Matrix.t(), QR.version(), Matrix.t()) :: Result.t(String.t(), Matrix.t())
   def add_finders(matrix, version, finder \\ @correct_finder) do
     matrix
