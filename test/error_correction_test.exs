@@ -1,6 +1,6 @@
 defmodule ErrorCorrectionTest do
   @moduledoc false
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use PropCheck
   doctest QRCode.ErrorCorrection
 

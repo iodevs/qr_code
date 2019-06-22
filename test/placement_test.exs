@@ -2,14 +2,16 @@ defmodule PlacementTest do
   @moduledoc false
 
   use ExUnit.Case
-  # doctest QRCode
+  use PropCheck
 
   alias MatrixReloaded.Matrix
-  alias QRCode.Placement
+  alias QRCode.{Placement, QR, ErrorCorrection}
+  alias Generators.QR, as: QRGenerator
 
   @timeout 300_000
-  @moduletag timeout: @timeout
+  @moduletag timeout: 120_000
 
+  @tag timeout: 120_000
   describe "Placement" do
     test "should check if finder patterns have correct position at qr matrix" do
       tasks =
@@ -123,6 +125,78 @@ defmodule PlacementTest do
         end
 
       assert tasks |> Enum.map(&Task.await(&1, @timeout)) |> Enum.all?()
+    end
+  end
+
+  @tag timeout: 120_000
+  property "should check if filled matrix by message is correct" do
+    forall qr <- qr() do
+      {:ok, q} = Placement.put_patterns(qr)
+
+      check_fill_matrix_by_message(q)
+    end
+  end
+
+  # Helpers
+
+  defp check_fill_matrix_by_message(%QR{matrix: matrix, message: message, version: version}) do
+    size = 4 * version + 16
+
+    {:ok, [hd | rest]} =
+      size..7
+      |> Enum.take_every(2)
+      |> Enum.concat([5, 3, 1])
+      |> Enum.reverse()
+      |> Enum.map(fn c ->
+        [Matrix.get_col(matrix, c - 1), Matrix.get_col(matrix, c)]
+        |> Result.fold()
+        |> Result.map(&Enum.map(&1, fn e -> List.flatten(e) end))
+        |> Result.map(&Enum.zip/1)
+        |> Result.map(&Enum.map(&1, fn e -> Tuple.to_list(e) end))
+      end)
+      |> Result.fold()
+      |> Result.map(&Enum.with_index/1)
+      |> Result.map(
+        &Enum.map(&1, fn
+          {col, idx} when rem(idx, 2) == 1 -> Enum.reverse(col)
+          {col, _idx} -> col
+        end)
+      )
+
+    expected_msg =
+      rest
+      |> Enum.reduce(hd, fn c, acc -> Enum.concat(c, acc) end)
+      |> Enum.reduce(<<>>, fn
+        [left, right], acc when left < 2 and right < 2 ->
+          <<acc::bitstring, right::size(1), left::size(1)>>
+
+        [left, _right], acc when left < 2 ->
+          <<acc::bitstring, left::size(1)>>
+
+        [_left, right], acc when right < 2 ->
+          <<acc::bitstring, right::size(1)>>
+
+        _, acc ->
+          acc
+      end)
+
+    expected_msg == message
+  end
+
+  # Generators
+
+  defp qr() do
+    let {level, version} <- {QRGenerator.level(), QRGenerator.version()} do
+      qr = %QR{
+        ecc_level: level,
+        version: version
+      }
+
+      count = ErrorCorrection.total_data_codewords(qr)
+
+      %QR{qr | encoded: :crypto.strong_rand_bytes(count)}
+      |> QRCode.ErrorCorrection.put()
+      |> QRCode.Message.put()
     end
   end
 end
