@@ -40,29 +40,12 @@ defmodule QRCode.DataEncoding do
 
   defp break_up_into_byte(codeword, qr) do
     codeword
-    |> add_terminator(qr)
-    |> add_more_zeros()
+    |> add_terminator()
     |> add_pad_bytes(qr)
   end
 
-  defp add_terminator(codeword, qr) do
-    diff = diff_total_number_and_bit_size_cw(codeword, qr)
-
-    case diff do
-      1 -> <<codeword::bitstring, (<<0::size(1)>>)>>
-      2 -> <<codeword::bitstring, (<<0::size(2)>>)>>
-      3 -> <<codeword::bitstring, (<<0::size(3)>>)>>
-      x when x >= 4 -> <<codeword::bitstring, (<<0::size(4)>>)>>
-    end
-  end
-
-  defp add_more_zeros(codeword) do
-    reminder = rem(bit_size(codeword), 8)
-
-    case reminder do
-      0 -> codeword
-      _ -> <<codeword::bitstring, (<<0::size(reminder)>>)>>
-    end
+  defp add_terminator(codeword) do
+    <<codeword::bitstring, (<<0::size(4)>>)>>
   end
 
   defp add_pad_bytes(codeword, qr) do
