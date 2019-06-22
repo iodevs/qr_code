@@ -178,23 +178,22 @@ defmodule QRCode.Placement do
     |> Kernel.elem(0)
   end
 
-  defp make_fill({matrix, acc_data}, cols) do
+  defp make_fill({matrix, acc_message}, cols) do
     matrix
     |> Matrix.flip_ud()
-    |> Enum.map_reduce(acc_data, fn row, acc_row ->
-      fill_row(row, acc_row, cols)
+    |> Enum.map_reduce(acc_message, fn row, acc_msg ->
+      fill_row(row, acc_msg, cols)
     end)
   end
 
-  defp fill_row(row, acc_row, cols) do
-    row
-    |> Enum.with_index()
-    |> Enum.map_reduce(acc_row, fn {val, j}, acc_col ->
-      if j in cols and val == 0 do
-        <<cw::size(1), rest_bin::bitstring>> = acc_col
-        {cw, rest_bin}
+  defp fill_row(row, acc_msg, cols) do
+    Enum.reduce(cols, {row, acc_msg}, fn col, {row, msg} ->
+      if Enum.at(row, col) == 0 do
+        <<cw::size(1), rest::bitstring>> = msg
+
+        {List.update_at(row, col, fn _ -> cw end), rest}
       else
-        {val, acc_col}
+        {row, msg}
       end
     end)
   end
