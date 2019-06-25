@@ -5,7 +5,7 @@ defmodule QRCode.MixProject do
     [
       app: :qr_code,
       dialyzer: dialyzer_base() |> dialyzer_ptl(System.get_env("SEMAPHORE_CACHE_DIR")),
-      version: "1.0.4",
+      version: "1.0.5",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
