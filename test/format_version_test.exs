@@ -105,7 +105,7 @@ defmodule FormatVersionTest do
     forall qr <- qr() do
       {:ok, q} = FormatVersion.put_information(qr)
 
-      check_version(q) and check_format(q)
+      check_version(q)
     end
   end
 
