@@ -14,34 +14,32 @@ defmodule QRCode.DataMasking do
   @spec apply(QR.t()) :: QR.t()
   def apply(%QR{matrix: matrix, version: version} = qr)
       when version(version) do
-    masked_matrices = masking_matrices(matrix)
-
-    index =
-      masked_matrices
+    {index, masked_matrix} =
+      matrix
+      |> masking_matrices()
       |> total_penalties()
-      |> index_best_mask()
+      |> best_mask()
 
-    %{qr | matrix: best_mask(masked_matrices, index), mask_num: index}
+    %{qr | matrix: masked_matrix, mask_num: index}
   end
 
   @spec masking_matrices(Matrix.t()) :: Enumerable.t()
   def masking_matrices(matrix) do
-    Stream.map(0..7, &make_mask_pattern(matrix, &1))
+    Stream.map(0..7, fn num -> {num, make_mask_pattern(matrix, num)} end)
   end
 
   @spec total_penalties(Enumerable.t()) :: Enumerable.t()
   def total_penalties(matrices) do
-    Stream.map(matrices, &total_penalty/1)
+    Stream.map(matrices, fn {num, matrix} -> {num, total_penalty(matrix), matrix} end)
   end
 
-  @spec index_best_mask(Enumerable.t()) :: non_neg_integer()
-  def index_best_mask(penalties) do
-    Enum.find_index(penalties, fn pen -> pen == Enum.min(penalties) end)
-  end
+  @spec best_mask(Enumerable.t()) :: {non_neg_integer(), Matrix.t()}
+  def best_mask(matrices) do
+    [{index, _, masked_matrix} | _] =
+      matrices
+      |> Enum.sort(fn {_, p1, _}, {_, p2, _} -> p1 <= p2 end)
 
-  @spec best_mask(Enumerable.t(), non_neg_integer()) :: Matrix.t()
-  def best_mask(matrices, index) do
-    Enum.at(matrices, index)
+    {index, masked_matrix}
   end
 
   @spec total_penalty(Matrix.t()) :: pos_integer()
