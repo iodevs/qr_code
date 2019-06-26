@@ -57,4 +57,12 @@ defmodule QRCode.QR do
     |> Result.and_then(&QRCode.Placement.replace_placeholders/1)
     |> Result.and_then(&QRCode.FormatVersion.put_information/1)
   end
+
+  @spec create!(String.t(), level()) :: t()
+  def create!(text, level \\ :low) when level(level) do
+    case create(text, level) do
+      {:ok, qr} -> qr
+      {:error, msg} -> raise QRCode.Error, message: msg
+    end
+  end
 end
