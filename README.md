@@ -2,6 +2,9 @@
 
 > TODO: Add description**
 
+[![Build Status](https://semaphoreci.com/api/v1/s-m-i-t-a/qr_code/branches/master/shields_badge.svg)](https://semaphoreci.com/s-m-i-t-a/qr_code)
+
+
 
 ## Installation
 
