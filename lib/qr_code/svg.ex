@@ -4,53 +4,87 @@ defmodule QRCode.Svg do
   """
 
   alias MatrixReloaded.Matrix
-
-  @type svg_string :: String.t()
-  @type background_color :: String.t() | tuple
-  @type qrcode_color :: String.t() | tuple
+  alias QRCode.{QR, SvgSettings}
 
   @type t :: %__MODULE__{
-          scale: integer,
-          background_color: background_color,
-          qrcode_color: qrcode_color
+          xmlns: String.t(),
+          xlink: String.t(),
+          width: ExMaybe.t(integer),
+          height: ExMaybe.t(integer),
+          body: String.t(),
+          rank_matrix: ExMaybe.t(pos_integer)
         }
 
-  defstruct scale: 10,
-            background_color: "#ffffff",
-            qrcode_color: "#000000"
+  defstruct xmlns: "http://www.w3.org/2000/svg",
+            xlink: "http://www.w3.org/1999/xlink",
+            width: nil,
+            height: nil,
+            body: nil,
+            rank_matrix: nil
 
-  @spec generate(Matrix.t(), svg_string(), t()) ::
-          :ok | Result.Error.t(File.posix() | :badarg | :terminated | String.t())
-  def generate(matrix, svg_name \\ "tmp/qr_code.svg", settings \\ %__MODULE__{}) do
+  @spec save_as(QR.t(), Path.t(), SvgSettings.t()) ::
+          Result.t(String.t() | File.posix() | :badarg | :terminated, Path.t())
+  def save_as(%QR{matrix: matrix}, svg_name, settings \\ %SvgSettings{}) do
     matrix
-    |> create(settings)
+    |> construct_body(%__MODULE__{}, settings)
+    |> construct_svg(settings)
     |> save(svg_name)
   end
 
-  defp create(matrix, %__MODULE__{background_color: bg, qrcode_color: qc, scale: scale}) do
-    {row_size, col_size} = Matrix.size(matrix)
+  defp construct_body(matrix, svg, %SvgSettings{qrcode_color: qc, scale: scale}) do
+    {rank_matrix, _} = Matrix.size(matrix)
 
-    body =
-      matrix
-      |> find_nonzero_element()
-      |> Enum.map(&create_rect(&1, scale, qc))
+    %{
+      svg
+      | body:
+          matrix
+          |> find_nonzero_element()
+          |> Enum.map(&create_rect(&1, scale, qc)),
+        rank_matrix: rank_matrix
+    }
+  end
 
+  defp construct_svg(
+         %__MODULE__{
+           xmlns: xmlns,
+           xlink: xlink,
+           body: body,
+           rank_matrix: rank_matrix
+         },
+         %SvgSettings{background_color: bg, scale: scale}
+       ) do
     {:svg,
      %{
-       xmlns: "http://www.w3.org/2000/svg",
-       xlink: "http://www.w3.org/1999/xlink",
-       width: row_size * scale,
-       height: col_size * scale
+       xmlns: xmlns,
+       xlink: xlink,
+       width: rank_matrix * scale,
+       height: rank_matrix * scale
      }, [background_rect(bg) | body]}
     |> XmlBuilder.generate()
   end
 
   defp save(svg, svg_name) do
     svg_name
-    |> File.open([:write], fn file ->
-      IO.binwrite(file, svg)
-    end)
+    |> File.open([:write])
+    |> Result.and_then(&write(&1, svg))
+    |> Result.and_then(&close(&1, svg_name))
   end
+
+  defp write(file, svg) do
+    case IO.binwrite(file, svg) do
+      :ok -> {:ok, file}
+      err -> err
+    end
+  end
+
+  defp close(file, svg_name) do
+    case File.close(file) do
+      :ok -> {:ok, svg_name}
+      err -> err
+    end
+  end
+
+  # Helpers
 
   defp create_rect({x_pos, y_pos}, scale, color) do
     {:rect,
@@ -68,9 +102,8 @@ defmodule QRCode.Svg do
       row
       |> Enum.with_index()
       |> Enum.reduce([], fn
-        {nil, _}, acc -> acc
         {0, _}, acc -> acc
-        {1, j}, acc -> [{j, i} | acc]
+        {1, j}, acc -> [{i, j} | acc]
       end)
     end)
     |> List.flatten()
