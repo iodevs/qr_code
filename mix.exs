@@ -19,7 +19,10 @@ defmodule QRCode.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      docs: docs()
+      name: "QRCode",
+      source_url: "https://github.com/iodevs/qr_code",
+      docs: docs(),
+      aliases: aliases()
     ]
   end
 
@@ -61,6 +64,12 @@ defmodule QRCode.MixProject do
       links: %{
         "GitHub" => "https://github.com/iodevs/qr_code"
       }
+    ]
+  end
+
+  defp aliases() do
+    [
+      docs: ["docs", &copy_assets/1]
     ]
   end
 
@@ -114,11 +123,18 @@ defmodule QRCode.MixProject do
 
   defp docs() do
     [
-      name: "QRCode",
-      source_ref: "1.0.5",
+      source_ref: "v1.0.5",
       canonical: "https://hexdocs.pm/qr_code",
-      source_url: "https://github.com/iodevs/qr_code",
-      docs: [main: "QRCode", extras: ["README.md"]]
+      main: "readme",
+      extras: ["README.md"],
+      groups_for_extras: [
+        Introduction: ~r/README.md/
+      ]
     ]
+  end
+
+  defp copy_assets(_) do
+    File.mkdir_p!("doc/docs")
+    File.cp_r!("docs", "doc/docs")
   end
 end
