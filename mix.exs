@@ -1,7 +1,7 @@
 defmodule QRCode.MixProject do
   use Mix.Project
 
-  @version "1.0.5"
+  @version "2.0.0"
 
   def project do
     [
