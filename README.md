@@ -5,7 +5,7 @@
 
 This library is useful for generating QR code to your projects.
 
-![QR code color](../docs/qrcode.svg)
+![QR code](docs/qrcode.svg)
 
 ## Installation
 ```elixir
@@ -66,7 +66,7 @@ By this option, you can set the size QR code, background of QR code or QR code c
   {:ok, "/tmp/your_name.svg"}
 ```
 
-![QR code color](../docs/qrcode_color.svg)
+![QR code color](docs/qrcode_color.svg)
 
 
 ## Limitations

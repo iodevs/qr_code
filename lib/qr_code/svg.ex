@@ -39,9 +39,8 @@ defmodule QRCode.Svg do
   Let's see an example below:
 
       iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
-      iex> "your_string"
-            |> QRCode.QR.create()
-            |> Result.and_then(&QRCode.Svg.save_as(&1,"/tmp/your_name.svg", settings))
+      iex> qr = QRCode.QR.create("your_string")
+      iex> qr |> Result.and_then(&QRCode.Svg.save_as(&1,"/tmp/your_name.svg", settings))
       {:ok, "/tmp/your_name.svg"}
   The svg file will be saved into your tmp directory.
 

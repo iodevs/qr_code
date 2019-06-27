@@ -18,7 +18,8 @@ defmodule QRCode.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ]
+      ],
+      docs: docs()
     ]
   end
 
@@ -109,5 +110,15 @@ defmodule QRCode.MixProject do
       :error, _ ->
         major
     end
+  end
+
+  defp docs() do
+    [
+      name: "QRCode",
+      source_ref: "1.0.5",
+      canonical: "https://hexdocs.pm/qr_code",
+      source_url: "https://github.com/iodevs/qr_code",
+      docs: [main: "QRCode", extras: ["README.md"]]
+    ]
   end
 end
