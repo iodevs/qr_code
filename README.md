@@ -114,7 +114,7 @@ please open new issue or push your code in this repository.
 
 ## License
 
-> TODO: Add license
+QRCode source code is licensed under the _BSD-4-Clause._
 
 ----
 Created:  2018-11-24Z
