@@ -45,6 +45,26 @@ defmodule QRCode.QR do
   defguard version(v) when v in 1..40
   defguard masking(m) when m in 0..7
 
+  @doc """
+  Creates QR code. You can change the error correction level according to your needs.
+  There are four level of error correction: `:low | :medium | :quartile | :high`
+  where `:low` is default value.
+
+  This function returns  [Result](https://hexdocs.pm/result/api-reference.html),
+  it means either tuple of `{:ok, QR.t()}` or `{:error, "msg"}`.
+
+  ##  Example:
+      iex> QRCode.QR.create("Hello World")
+      {:ok, %QRCode.QR{...}}
+
+  For saving QR code to svg file, use `QRCode.Svg.save_as/3` function:
+
+      iex> QRCode.QR.create("Hello World", :high)
+           |> Result.and_then(&QRCode.Svg.save_as(&1,"hello.svg"))
+      {:ok, "hello.svg"}
+
+  The svg file will be saved into your project directory.
+  """
   @spec create(String.t(), level()) :: Result.t(String.t(), t())
   def create(orig, level \\ :low) when level(level) do
     %__MODULE__{orig: orig, ecc_level: level}
@@ -58,6 +78,9 @@ defmodule QRCode.QR do
     |> Result.and_then(&QRCode.FormatVersion.put_information/1)
   end
 
+  @doc """
+  The same as `create/2`, but raises a `QRCode.Error` exception if it fails.
+  """
   @spec create!(String.t(), level()) :: t()
   def create!(text, level \\ :low) when level(level) do
     case create(text, level) do

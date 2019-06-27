@@ -22,6 +22,31 @@ defmodule QRCode.Svg do
             body: nil,
             rank_matrix: nil
 
+  @doc """
+  Saves QR code to svg file.  This function returns  [Result](https://hexdocs.pm/result/api-reference.html),
+  it means either tuple of `{:ok, "path/to/file.svg"}` or `{:error, reason}`.
+
+  Also there are a few settings for svg:
+  ```elixir
+        | Setting          | Type                | Default value | Description             |
+        |------------------|---------------------|---------------|-------------------------|
+        | scale            | positive integer    | 10            | scale for svg QR code   |
+        | background_color | string or {r, g, b} | "#ffffff"     | background color of svg |
+        | qrcode_color     | string or {r, g, b} | "#000000"     | color of QR code        |
+  ```
+
+  By this option, you can set the background of QR code, QR code colors or size QR code.
+  Let's see an example below:
+
+      iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
+      iex> "your_string"
+            |> QRCode.QR.create()
+            |> Result.and_then(&QRCode.Svg.save_as(&1,"/tmp/your_name.svg", settings))
+      {:ok, "/tmp/your_name.svg"}
+  The svg file will be saved into your tmp directory.
+
+  ![QR code color](../docs/qrcode_color.png)
+  """
   @spec save_as(QR.t(), Path.t(), SvgSettings.t()) ::
           Result.t(String.t() | File.posix() | :badarg | :terminated, Path.t())
   def save_as(%QR{matrix: matrix}, svg_name, settings \\ %SvgSettings{}) do
