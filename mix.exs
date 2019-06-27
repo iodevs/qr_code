@@ -1,11 +1,13 @@
 defmodule QRCode.MixProject do
   use Mix.Project
 
+  @version "1.0.5"
+
   def project do
     [
       app: :qr_code,
       dialyzer: dialyzer_base() |> dialyzer_ptl(System.get_env("SEMAPHORE_CACHE_DIR")),
-      version: "1.0.5",
+      version: @version,
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -123,7 +125,7 @@ defmodule QRCode.MixProject do
 
   defp docs() do
     [
-      source_ref: "v1.0.5",
+      source_ref: "v#{@version}",
       canonical: "https://hexdocs.pm/qr_code",
       main: "readme",
       extras: ["README.md"],
