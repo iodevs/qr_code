@@ -55,9 +55,14 @@ Also there are a few settings for svg:
   | scale            | positive integer    | 10            | scale for svg QR code   |
   | background_color | string or {r, g, b} | "#ffffff"     | background color of svg |
   | qrcode_color     | string or {r, g, b} | "#000000"     | color of QR code        |
+  | format           | :none or :indent    | :none         | indentation of elements |
 ```
 
-By this option, you can set the size QR code, background of QR code or QR code colors. Let's see an example below:
+By this option, you can set the size QR code, background of QR code or QR code colors. The
+format option is for removing indentation (of elements like is `<rect.. />`) in a svg file.
+It means that for value `:none`, the svg file contains only one "line of code" (no indentation), whereas for `:indent` svg file has a structure and svg code is more readable.
+
+Let's see an example below:
 ```elixir
   iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
   iex> "your_string"

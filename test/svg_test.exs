@@ -13,7 +13,7 @@ defmodule SvgTest do
     setup do
       @text
       |> QR.create()
-      |> Result.and_then(&Svg.save_as(&1, @dst_to_file))
+      |> Result.and_then(&Svg.save_as(&1, @dst_to_file, %QRCode.SvgSettings{format: :indent}))
 
       on_exit(fn ->
         :ok = File.rm(@dst_to_file)
@@ -38,7 +38,11 @@ defmodule SvgTest do
       @text
       |> QR.create()
       |> Result.and_then(
-        &Svg.save_as(&1, @dst_to_file, %QRCode.SvgSettings{qrcode_color: {17, 170, 136}})
+        &Svg.save_as(
+          &1,
+          @dst_to_file,
+          %QRCode.SvgSettings{qrcode_color: {17, 170, 136}, format: :indent}
+        )
       )
 
       color =

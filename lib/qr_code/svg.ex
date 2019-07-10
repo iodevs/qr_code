@@ -23,6 +23,15 @@ defmodule QRCode.Svg do
             rank_matrix: nil
 
   @doc """
+  Create Svg structure from QR matrix as binary. This binary contains svg
+  attributes and svg elements.
+  """
+  @spec create(QR.t(), SvgSettings.t()) :: binary()
+  def create(%QR{matrix: matrix}, settings \\ %SvgSettings{}) do
+    create_svg(matrix, settings)
+  end
+
+  @doc """
   Saves QR code to svg file.  This function returns  [Result](https://hexdocs.pm/result/api-reference.html),
   it means either tuple of `{:ok, "path/to/file.svg"}` or `{:error, reason}`.
 
@@ -33,9 +42,11 @@ defmodule QRCode.Svg do
         | scale            | positive integer    | 10            | scale for svg QR code   |
         | background_color | string or {r, g, b} | "#ffffff"     | background color of svg |
         | qrcode_color     | string or {r, g, b} | "#000000"     | color of QR code        |
+        | format           | :none or :indent    | :none         | indentation of elements |
   ```
 
-  By this option, you can set the background of QR code, QR code colors or size QR code.
+  By this option, you can set the background of QR code, QR code colors or size QR code. The
+  format option is for removing indentation (of elements) in a svg file.
   Let's see an example below:
 
       iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
@@ -44,15 +55,33 @@ defmodule QRCode.Svg do
       {:ok, "/tmp/your_name.svg"}
   The svg file will be saved into your tmp directory.
 
-  ![QR code color](../docs/qrcode_color.png)
+  ![QR code color](docs/qrcode_color.png)
   """
   @spec save_as(QR.t(), Path.t(), SvgSettings.t()) ::
           Result.t(String.t() | File.posix() | :badarg | :terminated, Path.t())
   def save_as(%QR{matrix: matrix}, svg_name, settings \\ %SvgSettings{}) do
     matrix
+    |> create_svg(settings)
+    |> save(svg_name)
+  end
+
+  @doc """
+  Create Svg structure from QR matrix as binary and encode it into a base 64.
+  This encoded string can be then used in Html as
+
+  `<img src="data:image/svg+xml; base64, encoded_svg_qr_code" />`
+  """
+  @spec to_base64(QR.t(), SvgSettings.t()) :: binary()
+  def to_base64(%QR{matrix: matrix}, settings \\ %SvgSettings{}) do
+    matrix
+    |> create_svg(settings)
+    |> Base.encode64()
+  end
+
+  defp create_svg(matrix, settings) do
+    matrix
     |> construct_body(%__MODULE__{}, settings)
     |> construct_svg(settings)
-    |> save(svg_name)
   end
 
   defp construct_body(matrix, svg, %SvgSettings{qrcode_color: qc, scale: scale}) do
@@ -75,7 +104,7 @@ defmodule QRCode.Svg do
            body: body,
            rank_matrix: rank_matrix
          },
-         %SvgSettings{background_color: bg, scale: scale}
+         %SvgSettings{background_color: bg, scale: scale, format: format}
        ) do
     {:svg,
      %{
@@ -84,7 +113,7 @@ defmodule QRCode.Svg do
        width: rank_matrix * scale,
        height: rank_matrix * scale
      }, [background_rect(bg) | body]}
-    |> XmlBuilder.generate()
+    |> XmlBuilder.generate(format: format)
   end
 
   defp save(svg, svg_name) do
