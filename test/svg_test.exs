@@ -2,7 +2,7 @@ defmodule SvgTest do
   @moduledoc false
 
   use ExUnit.Case
-  alias QRCode.{QR, Svg}
+  alias QRCode.{QR, Svg, SvgSettings}
 
   @text "HELLO WORLD"
   @dst_to_file "/tmp/hello.svg"
@@ -13,7 +13,7 @@ defmodule SvgTest do
     setup do
       @text
       |> QR.create()
-      |> Result.and_then(&Svg.save_as(&1, @dst_to_file, %QRCode.SvgSettings{format: :indent}))
+      |> Result.and_then(&Svg.save_as(&1, @dst_to_file, %SvgSettings{format: :indent}))
 
       on_exit(fn ->
         :ok = File.rm(@dst_to_file)
@@ -22,6 +22,34 @@ defmodule SvgTest do
 
     test "should save qr code to svg file" do
       assert File.exists?(@dst_to_file)
+    end
+
+    test "should create svg from qr matrix" do
+      expected =
+        @text
+        |> QR.create()
+        |> Result.and_then(&Svg.create(&1, %SvgSettings{format: :indent}))
+
+      rv =
+        @dst_to_file
+        |> File.read!()
+
+      assert expected == rv
+    end
+
+    test "should encoded svg binary to base64" do
+      expected =
+        @text
+        |> QR.create()
+        |> Result.and_then(&Svg.create/1)
+
+      {:ok, rv} =
+        @text
+        |> QR.create()
+        |> Result.map(&Svg.to_base64/1)
+        |> Result.and_then(&Base.decode64/1)
+
+      assert expected == rv
     end
 
     test "file should contain xmlns and xlink attributes" do
@@ -41,7 +69,7 @@ defmodule SvgTest do
         &Svg.save_as(
           &1,
           @dst_to_file,
-          %QRCode.SvgSettings{qrcode_color: {17, 170, 136}, format: :indent}
+          %SvgSettings{qrcode_color: {17, 170, 136}, format: :indent}
         )
       )
 
