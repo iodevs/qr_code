@@ -44,6 +44,7 @@ defmodule QRCode.MixProject do
     [
       {:result, "~> 1.3.0"},
       {:ex_maybe, "~> 1.1.1"},
+      {:png, "~> 0.1"},
       {:ex_doc, "~> 0.20.2", only: :dev},
       {:credo, "~> 1.1.0", only: [:dev, :test]},
       {:excoveralls, "~> 0.11.1", only: [:dev, :test]},

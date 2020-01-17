@@ -73,6 +73,7 @@ Let's see an example below:
 
 ![QR code color](docs/qrcode_color.svg)
 
+Similar api is available for generating png file as well. Check [QRCode.Png](https://hexdocs.pm/qr_code/QRCode.Png.html#content) for details.
 
 ## Limitations
 The QR code is limited by characters that can contain it:
@@ -88,15 +89,6 @@ In our case this library was developed only for `Byte` mode. If anyone needs the
 please open new issue or push your code in this repository.
 
 ## Notes
-* If you need a png format instead of svg, you can use [mogrify](https://github.com/route/mogrify) to convert it:
-  ```elixir
-  import Mogrify
-
-  "qr_code.svg"
-    |> Mogrify.open()
-    |> format("png")
-    |> save(path: "qr_code.png")
-  ```
 
 * You can also save the QR matrix to csv using by [csvlixir](https://github.com/jimm/csvlixir):
   ```elixir
