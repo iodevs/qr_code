@@ -8,7 +8,7 @@ defmodule QRCode.MixProject do
       app: :qr_code,
       dialyzer: dialyzer_base() |> dialyzer_ptl(System.get_env("SEMAPHORE_CACHE_DIR")),
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: "Library for generating QR code.",

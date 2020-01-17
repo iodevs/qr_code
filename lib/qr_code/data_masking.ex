@@ -86,7 +86,7 @@ defmodule QRCode.DataMasking do
       matrix
       |> Enum.reduce(0, fn row, acc -> Enum.sum(row) + acc end)
 
-    percent_of_dark = Kernel.floor(dark_modules * 100 / (rs * cs))
+    percent_of_dark = :erlang.floor(dark_modules * 100 / (rs * cs))
 
     reminder =
       percent_of_dark
@@ -195,7 +195,7 @@ defmodule QRCode.DataMasking do
   defp mask_pattern(val, row, col, 3) when rem(row + col, 3) == 0, do: val ^^^ 1
 
   defp mask_pattern(val, row, col, 4)
-       when rem(floor(row / 2) + floor(col / 3), 2) == 0,
+       when rem(:erlang.floor(row / 2) + :erlang.floor(col / 3), 2) == 0,
        do: val ^^^ 1
 
   defp mask_pattern(val, row, col, 5)
