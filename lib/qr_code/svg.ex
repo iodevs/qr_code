@@ -69,7 +69,7 @@ defmodule QRCode.Svg do
   Create Svg structure from QR matrix as binary and encode it into a base 64.
   This encoded string can be then used in Html as
 
-  `<img src="data:image/svg+xml; base64, encoded_svg_qr_code" />`
+  `<img src="data:image/svg+xml;base64, encoded_svg_qr_code" />`
   """
   @spec to_base64(QR.t(), SvgSettings.t()) :: binary()
   def to_base64(%QR{matrix: matrix}, settings \\ %SvgSettings{}) do
