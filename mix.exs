@@ -11,7 +11,7 @@ defmodule QRCode.MixProject do
       description: "Library for generating QR code.",
       dialyzer: dialyzer(),
       docs: docs(),
-      elixir: "~> 1.9",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       name: "QRCode",
       package: package(),
