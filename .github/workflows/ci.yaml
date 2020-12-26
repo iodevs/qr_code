@@ -1,0 +1,66 @@
+name: Continuous Integration
+
+on: push
+
+env:
+  # OS: ubuntu-latest
+  OTP_VERSION: 20
+  ELIXIR_VERSION: 1.8
+  MIX_ENV: test
+
+jobs:
+  test:
+    name: Run on ubuntu-latest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code into workspace directory
+        uses: actions/checkout@v2
+
+      - name: The OTP ${{ env.OTP_VERSION }} and Elixir ${{ env.ELIXIR_VERSION }} will be installed...
+        uses: actions/setup-elixir@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+
+      - uses: actions/cache@v1
+        id: deps-cache
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - uses: actions/cache@v1
+        id: build-cache
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - uses: actions/cache@v1
+        id: plts-cache
+        with:
+          path: priv/plts
+          key: ${{ runner.os }}-erlef-dialyzer-v2-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-erlef-dialyzer-v2-
+
+      - name: install dependencies
+        run: mix deps.get
+
+      - name: compile
+        run: mix compile --warnings-as-errors
+
+      - name: format
+        run: mix format --check-formatted
+
+      - name: credo
+        run: mix credo
+
+      - name: dialyzer
+        run: mix dialyzer
+
+      - name: test
+        run: mix test

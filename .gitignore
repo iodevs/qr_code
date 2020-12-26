@@ -22,6 +22,10 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 qr_code-*.tar
 
+# Ignore dialyzer tables
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
+
 .envs
 .vimrc
 tmp/
