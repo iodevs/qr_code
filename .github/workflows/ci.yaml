@@ -4,7 +4,7 @@ on: push
 
 env:
   # OS: ubuntu-latest
-  OTP_VERSION: 21.1.1
+  OTP_VERSION: 21.0
   ELIXIR_VERSION: 1.8
   MIX_ENV: test
 
