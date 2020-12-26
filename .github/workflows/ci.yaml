@@ -4,8 +4,8 @@ on: push
 
 env:
   # OS: ubuntu-latest
-  OTP_VERSION: 20
-  ELIXIR_VERSION: 1.8
+  OTP_VERSION: 21.1.1
+  ELIXIR_VERSION: 1.7.4
   MIX_ENV: test
 
 jobs:
@@ -43,9 +43,9 @@ jobs:
         id: plts-cache
         with:
           path: priv/plts
-          key: ${{ runner.os }}-erlef-dialyzer-v2-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-erlef-dialyzer-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-erlef-dialyzer-v2-
+            ${{ runner.os }}-erlef-dialyzer-
 
       - name: install dependencies
         run: mix deps.get
