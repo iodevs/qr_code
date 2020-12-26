@@ -5,26 +5,26 @@ defmodule QRCode.MixProject do
 
   def project do
     [
+      aliases: aliases(),
       app: :qr_code,
-      dialyzer: dialyzer_base() |> dialyzer_ptl(System.get_env("SEMAPHORE_CACHE_DIR")),
-      version: @version,
+      deps: deps(),
+      description: "Library for generating QR code.",
+      dialyzer: dialyzer(),
+      docs: docs(),
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
-      start_permanent: Mix.env() == :prod,
-      description: "Library for generating QR code.",
-      deps: deps(),
+      name: "QRCode",
       package: package(),
-      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      name: "QRCode",
       source_url: "https://github.com/iodevs/qr_code",
-      docs: docs(),
-      aliases: aliases()
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      version: @version
     ]
   end
 
@@ -34,6 +34,8 @@ defmodule QRCode.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  # Private
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -75,9 +77,11 @@ defmodule QRCode.MixProject do
     ]
   end
 
-  defp dialyzer_base() do
+  defp dialyzer() do
     [
+      plt_add_apps: [:mix],
       plt_add_deps: :transitive,
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
       ignore_warnings: "dialyzer.ignore-warnings",
       flags: [
         :unmatched_returns,
@@ -86,41 +90,6 @@ defmodule QRCode.MixProject do
         :no_opaque
       ]
     ]
-  end
-
-  defp dialyzer_ptl(base, nil) do
-    base
-  end
-
-  defp dialyzer_ptl(base, path) do
-    base ++
-      [
-        plt_core_path: path,
-        plt_file:
-          Path.join(
-            path,
-            "dialyxir_erlang-#{otp_vsn()}_elixir-#{System.version()}_deps-dev.plt"
-          )
-      ]
-  end
-
-  defp otp_vsn() do
-    major = :erlang.system_info(:otp_release) |> List.to_string()
-    vsn_file = Path.join([:code.root_dir(), "releases", major, "OTP_VERSION"])
-
-    try do
-      {:ok, contents} = File.read(vsn_file)
-      String.split(contents, "\n", trim: true)
-    else
-      [full] ->
-        full
-
-      _ ->
-        major
-    catch
-      :error, _ ->
-        major
-    end
   end
 
   defp docs() do
