@@ -1,6 +1,6 @@
 # QRCode
 
-[![Continuous Integration Status](https://https://github.com/iodevs/qr_code/workflows/ci/badge.svg)](https://github.com/iodevs/qr_code/actions)
+[![Continuous Integration](https://github.com/iodevs/qr_code/workflows/Continuous%20Integration/badge.svg)](https://github.com/iodevs/qr_code/actions)
 
 This library is useful for generating QR code to your projects.
 
