@@ -4,8 +4,8 @@ on: push
 
 env:
   # OS: ubuntu-latest
-  OTP_VERSION: 23.1
-  ELIXIR_VERSION: 1.11.2
+  OTP_VERSION: 21.0
+  ELIXIR_VERSION: 1.8
   MIX_ENV: test
 
 jobs:
@@ -22,7 +22,6 @@ jobs:
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
-          experimental-otp: true
 
       - uses: actions/cache@v1
         id: deps-cache
