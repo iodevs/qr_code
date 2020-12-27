@@ -1,6 +1,7 @@
 # QRCode
 
 [![Continuous Integration](https://github.com/iodevs/qr_code/workflows/Continuous%20Integration/badge.svg)](https://github.com/iodevs/qr_code/actions)
+[![Coverage Status](https://coveralls.io/repos/github/iodevs/qr_code/badge.svg?branch=master)](https://coveralls.io/github/iodevs/qr_code?branch=master)
 
 This library is useful for generating QR code to your projects.
 

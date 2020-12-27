@@ -6,6 +6,7 @@ env:
   # OS: ubuntu-latest
   OTP_VERSION: 21.0
   ELIXIR_VERSION: 1.8
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MIX_ENV: test
 
 jobs:
@@ -64,3 +65,6 @@ jobs:
 
       - name: test
         run: mix test
+
+      - name: coveralls
+        run: coveralls.github
