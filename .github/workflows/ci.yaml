@@ -6,7 +6,7 @@ env:
   # OS: ubuntu-latest
   OTP_VERSION: 21.0
   ELIXIR_VERSION: 1.8
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN_QR_CODE }}
   MIX_ENV: test
 
 jobs:
