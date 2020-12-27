@@ -1,0 +1,15 @@
+{
+  "default_stop_words": [
+    "defdelegate",
+    "defguard"
+  ],
+
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "minimum_coverage": 80
+  },
+
+  "skip_files": [
+    "lib/qr_code/error.ex"
+  ]
+}
