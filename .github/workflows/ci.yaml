@@ -67,4 +67,6 @@ jobs:
         run: mix test
 
       - name: coveralls
-        run: MIX_ENV=test mix coveralls.github
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ env.GITHUB_TOKEN }}
