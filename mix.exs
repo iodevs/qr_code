@@ -50,7 +50,7 @@ defmodule QRCode.MixProject do
       {:credo, "~> 1.1.0", only: [:dev, :test]},
       {:excoveralls, "~> 0.11.1", only: [:dev, :test]},
       {:inch_ex, "~> 2.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:xml_builder, "~> 2.1.1"},
       {:csvlixir, "~> 2.0.4"},
       {:matrix_reloaded, "~> 2.2.1"},
@@ -79,7 +79,7 @@ defmodule QRCode.MixProject do
 
   defp dialyzer() do
     [
-      plt_add_apps: [:mix],
+      plt_add_apps: [:mix, :ex_unit],
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
       ignore_warnings: "dialyzer.ignore-warnings",
       flags: [
