@@ -67,4 +67,4 @@ jobs:
         run: mix test
 
       - name: coveralls
-        run: coveralls.github
+        run: MIX_ENV=test mix coveralls.github
