@@ -46,13 +46,13 @@ defmodule QRCode.MixProject do
     [
       {:result, "~> 1.3.0"},
       {:ex_maybe, "~> 1.1.1"},
-      {:ex_doc, "~> 0.20.2", only: :dev},
-      {:credo, "~> 1.1.0", only: [:dev, :test]},
+      {:ex_doc, "~> 0.23.0", only: :dev},
+      {:credo, "~> 1.5.4", only: [:dev, :test]},
       {:excoveralls, "~> 0.13.4", only: [:dev, :test]},
       {:inch_ex, "~> 2.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:xml_builder, "~> 2.1.1"},
-      {:csvlixir, "~> 2.0.4"},
+      {:csvlixir, "~> 2.0.4", only: [:dev, :test]},
       {:matrix_reloaded, "~> 2.2.1"},
       {:propcheck, "~> 1.1", only: :test}
     ]

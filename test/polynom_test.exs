@@ -17,17 +17,18 @@ defmodule PolynomTest do
     forall {degree, msg} <- {integer(1, 68), list(byte())} do
       msg
       |> Polynom.div(GP.create(degree))
-      |> chceck_degree(degree)
+      |> check_degree(degree)
     end
   end
 
   # Helpers
 
-  defp chceck_degree(result, degree) do
+  defp check_degree(result, degree) do
     length(result) == degree
   end
 
   # Generators
+
   defp examples() do
     oneof([
       {
