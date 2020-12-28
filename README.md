@@ -22,7 +22,7 @@ end
 
 ## Usage
 
-If you want to create QR code, just use the function `QRCode.create(orig, level)`:
+If you want to create QR code, just use the function `QRCode.create(your_string, level)`:
 
 ```elixir
   iex> QRCode.create("Hello World")
