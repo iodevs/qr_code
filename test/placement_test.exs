@@ -128,7 +128,7 @@ defmodule PlacementTest do
     end
   end
 
-  @tag timeout: 180_000
+  @tag timeout: 300_000
   property "should check if filled matrix by message is correct" do
     forall qr <- qr() do
       {:ok, q} = Placement.put_patterns(qr)
