@@ -91,7 +91,7 @@ defmodule FormatVersionTest do
     40 => [[1, 0, 0], [1, 0, 1], [1, 0, 0], [0, 1, 1], [0, 0, 0], [1, 0, 1]]
   }
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   property "should check if format string has correct position at qr matrix" do
     forall qr <- qr() do
       {:ok, q} = FormatVersion.put_information(qr)
@@ -100,7 +100,7 @@ defmodule FormatVersionTest do
     end
   end
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   property "should check if version patterns have correct position at qr matrix" do
     forall qr <- qr() do
       {:ok, q} = FormatVersion.put_information(qr)

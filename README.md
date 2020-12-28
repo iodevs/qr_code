@@ -2,6 +2,9 @@
 
 [![Continuous Integration](https://github.com/iodevs/qr_code/workflows/Continuous%20Integration/badge.svg)](https://github.com/iodevs/qr_code/actions)
 [![Coverage Status](https://coveralls.io/repos/github/iodevs/qr_code/badge.svg?branch=master)](https://coveralls.io/github/iodevs/qr_code?branch=master)
+![GitHub top language](https://img.shields.io/github/languages/top/iodevs/qr_code)
+![Hex.pm](https://img.shields.io/hexpm/v/qr_code)
+![Hex.pm](https://img.shields.io/hexpm/dt/qr_code)
 
 This library is useful for generating QR code to your projects.
 

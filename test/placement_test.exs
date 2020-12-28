@@ -9,9 +9,9 @@ defmodule PlacementTest do
   alias Generators.QR, as: QRGenerator
 
   @timeout 300_000
-  @moduletag timeout: 120_000
+  @moduletag timeout: 180_000
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   describe "Placement" do
     test "should check if finder patterns have correct position at qr matrix" do
       tasks =
@@ -128,7 +128,7 @@ defmodule PlacementTest do
     end
   end
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   property "should check if filled matrix by message is correct" do
     forall qr <- qr() do
       {:ok, q} = Placement.put_patterns(qr)
