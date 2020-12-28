@@ -11,7 +11,7 @@ defmodule ErrorCorrectionTest do
 
   # Properties
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   property "should have right split to groups and blocks" do
     forall qr <- qr() do
       qr
@@ -20,7 +20,7 @@ defmodule ErrorCorrectionTest do
     end
   end
 
-  @tag timeout: 120_000
+  @tag timeout: 180_000
   property "should have correct number of error codewords" do
     forall qr <- qr() do
       qr
