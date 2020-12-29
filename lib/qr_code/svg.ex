@@ -84,7 +84,7 @@ defmodule QRCode.Svg do
     |> construct_svg(settings)
   end
 
-  defp construct_body(matrix, svg, %SvgSettings{qrcode_color: qc, scale: scale}) do
+  defp construct_body(matrix, svg, %SvgSettings{scale: scale}) do
     {rank_matrix, _} = Matrix.size(matrix)
 
     %{
@@ -92,7 +92,7 @@ defmodule QRCode.Svg do
       | body:
           matrix
           |> find_nonzero_element()
-          |> Enum.map(&create_rect(&1, scale, qc)),
+          |> Enum.map(&create_rect(&1, scale)),
         rank_matrix: rank_matrix
     }
   end
@@ -104,7 +104,7 @@ defmodule QRCode.Svg do
            body: body,
            rank_matrix: rank_matrix
          },
-         %SvgSettings{background_color: bg, scale: scale, format: format}
+         %SvgSettings{background_color: bg, qrcode_color: qc, scale: scale, format: format}
        ) do
     {:svg,
      %{
@@ -112,7 +112,7 @@ defmodule QRCode.Svg do
        xlink: xlink,
        width: rank_matrix * scale,
        height: rank_matrix * scale
-     }, [background_rect(bg) | body]}
+     }, [background_rect(bg), to_group(body, qc)]}
     |> XmlBuilder.generate(format: format)
   end
 
@@ -139,13 +139,16 @@ defmodule QRCode.Svg do
 
   # Helpers
 
-  defp create_rect({x_pos, y_pos}, scale, color) do
-    {:rect,
-     %{width: scale, height: scale, x: scale * x_pos, y: scale * y_pos, fill: to_hex(color)}, nil}
+  defp create_rect({x_pos, y_pos}, scale) do
+    {:rect, %{width: scale, height: scale, x: scale * x_pos, y: scale * y_pos}, nil}
   end
 
   defp background_rect(color) do
     {:rect, %{width: "100%", height: "100%", fill: to_hex(color)}, nil}
+  end
+
+  defp to_group(body, color) do
+    {:g, %{fill: to_hex(color)}, body}
   end
 
   defp find_nonzero_element(matrix) do
