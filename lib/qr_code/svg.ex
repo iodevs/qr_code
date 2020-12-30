@@ -37,22 +37,25 @@ defmodule QRCode.Svg do
 
   Also there are a few settings for svg:
   ```elixir
-        | Setting          | Type                | Default value | Description             |
-        |------------------|---------------------|---------------|-------------------------|
-        | scale            | positive integer    | 10            | scale for svg QR code   |
-        | background_color | string or {r, g, b} | "#ffffff"     | background color of svg |
-        | qrcode_color     | string or {r, g, b} | "#000000"     | color of QR code        |
-        | format           | :none or :indent    | :none         | indentation of elements |
+  | Setting                 | Type                   | Default value | Description                    |
+  |-------------------------|------------------------|---------------|--------------------------------|
+  | scale                   | positive integer       | 10            | scale for svg QR code          |
+  | background_transparency | nil or 0.0 <= x <= 1.0 | nil           | background transparency of svg |
+  | background_color        | string or {r, g, b}    | "#ffffff"     | background color of svg        |
+  | qrcode_color            | string or {r, g, b}    | "#000000"     | color of QR code               |
+  | format                  | :none or :indent       | :none         | indentation of elements        |
   ```
 
-  By this option, you can set the background of QR code, QR code colors or size QR code. The
-  format option is for removing indentation (of elements) in a svg file.
+  By this option, you can set the size QR code, background color (and also transparency)
+  of QR code or QR code colors.The format option is for removing indentation (of elements)
+  in a svg file.
   Let's see an example below:
 
       iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
       iex> qr = QRCode.QR.create("your_string")
       iex> qr |> Result.and_then(&QRCode.Svg.save_as(&1,"/tmp/your_name.svg", settings))
       {:ok, "/tmp/your_name.svg"}
+
   The svg file will be saved into your tmp directory.
 
   ![QR code color](docs/qrcode_color.png)
@@ -77,6 +80,8 @@ defmodule QRCode.Svg do
     |> create_svg(settings)
     |> Base.encode64()
   end
+
+  # Private
 
   defp create_svg(matrix, settings) do
     matrix
@@ -145,18 +150,30 @@ defmodule QRCode.Svg do
 
   # Helpers
 
+  defp background_settings(color) do
+    %{
+      width: "100%",
+      height: "100%",
+      fill: to_hex(color)
+    }
+  end
+
   defp create_rect({x_pos, y_pos}, scale) do
     {:rect, %{width: scale, height: scale, x: scale * x_pos, y: scale * y_pos}, nil}
   end
 
   defp background_rect(color, nil) do
-    {:rect, %{width: "100%", height: "100%", fill: to_hex(color)}, nil}
+    {:rect, background_settings(color), nil}
   end
 
   defp background_rect(color, transparency)
-       when is_float(transparency) and 0.0 <= transparency and transparency <= 1.0 do
-    {:rect, %{width: "100%", height: "100%", fill: to_hex(color), "fill-opacity": transparency},
-     nil}
+       when 0.0 <= transparency and transparency <= 1.0 do
+    bg_settings =
+      color
+      |> background_settings()
+      |> Map.put(:"fill-opacity", transparency)
+
+    {:rect, bg_settings, nil}
   end
 
   defp to_group(body, color) do
@@ -177,16 +194,15 @@ defmodule QRCode.Svg do
     |> List.flatten()
   end
 
-  defp to_hex(color) when is_tuple(color) do
-    {r, g, b} = color
-
-    "#" <>
-      (r |> :binary.encode_unsigned() |> Base.encode16()) <>
-      (g |> :binary.encode_unsigned() |> Base.encode16()) <>
-      (b |> :binary.encode_unsigned() |> Base.encode16())
+  defp to_hex({r, g, b} = color) when is_tuple(color) do
+    "##{encode_color(r)}#{encode_color(g)}#{encode_color(b)}"
   end
 
   defp to_hex(color) do
     color
+  end
+
+  def encode_color(c) when is_integer(c) and c in [0, 255] do
+    c |> :binary.encode_unsigned() |> Base.encode16()
   end
 end

@@ -53,7 +53,7 @@ defmodule SvgTest do
       assert expected == rv
     end
 
-    test "svg should contain xmlns and xlink attributes" do
+    test "file should contain xmlns and xlink attributes" do
       rv =
         @dst_to_file
         |> File.stream!()
@@ -63,7 +63,7 @@ defmodule SvgTest do
       assert Regex.match?(@rgx_svg_attrs, rv)
     end
 
-    test "svg should not contain backgound transparency" do
+    test "file should not contain backgound transparency" do
       rv =
         @dst_to_file
         |> File.stream!()
@@ -73,7 +73,7 @@ defmodule SvgTest do
       refute Regex.match?(@rgx_bg_transparency, rv)
     end
 
-    test "svg should contain backgound transparency" do
+    test "file should contain backgound transparency" do
       @text
       |> QR.create()
       |> Result.and_then(
@@ -93,7 +93,7 @@ defmodule SvgTest do
       assert Regex.match?(@rgx_bg_transparency, rv)
     end
 
-    test "svg should contain different qr code color than black" do
+    test "file should contain different qr code color than black" do
       @text
       |> QR.create()
       |> Result.and_then(
