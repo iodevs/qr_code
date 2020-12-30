@@ -202,7 +202,7 @@ defmodule QRCode.Svg do
     color
   end
 
-  def encode_color(c) when is_integer(c) and c in [0, 255] do
+  def encode_color(c) when is_integer(c) and 0 <= c and c <= 255 do
     c |> :binary.encode_unsigned() |> Base.encode16()
   end
 end
