@@ -104,7 +104,13 @@ defmodule QRCode.Svg do
            body: body,
            rank_matrix: rank_matrix
          },
-         %SvgSettings{background_color: bg, qrcode_color: qc, scale: scale, format: format}
+         %SvgSettings{
+           background_transparency: bg_tr,
+           background_color: bg,
+           qrcode_color: qc,
+           scale: scale,
+           format: format
+         }
        ) do
     {:svg,
      %{
@@ -112,7 +118,7 @@ defmodule QRCode.Svg do
        xlink: xlink,
        width: rank_matrix * scale,
        height: rank_matrix * scale
-     }, [background_rect(bg), to_group(body, qc)]}
+     }, [background_rect(bg, bg_tr), to_group(body, qc)]}
     |> XmlBuilder.generate(format: format)
   end
 
@@ -143,8 +149,14 @@ defmodule QRCode.Svg do
     {:rect, %{width: scale, height: scale, x: scale * x_pos, y: scale * y_pos}, nil}
   end
 
-  defp background_rect(color) do
+  defp background_rect(color, nil) do
     {:rect, %{width: "100%", height: "100%", fill: to_hex(color)}, nil}
+  end
+
+  defp background_rect(color, transparency)
+       when is_float(transparency) and 0.0 <= transparency and transparency <= 1.0 do
+    {:rect, %{width: "100%", height: "100%", fill: to_hex(color), "fill-opacity": transparency},
+     nil}
   end
 
   defp to_group(body, color) do
