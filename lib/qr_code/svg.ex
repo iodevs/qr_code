@@ -37,16 +37,16 @@ defmodule QRCode.Svg do
 
   Also there are a few settings for svg:
   ```elixir
-  | Setting                 | Type                   | Default value | Description                    |
-  |-------------------------|------------------------|---------------|--------------------------------|
-  | scale                   | positive integer       | 10            | scale for svg QR code          |
-  | background_transparency | nil or 0.0 <= x <= 1.0 | nil           | background transparency of svg |
-  | background_color        | string or {r, g, b}    | "#ffffff"     | background color of svg        |
-  | qrcode_color            | string or {r, g, b}    | "#000000"     | color of QR code               |
-  | format                  | :none or :indent       | :none         | indentation of elements        |
+  | Setting            | Type                   | Default value | Description               |
+  |--------------------|------------------------|---------------|---------------------------|
+  | scale              | positive integer       | 10            | scale for svg QR code     |
+  | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | background opacity of svg |
+  | background_color   | string or {r, g, b}    | "#ffffff"     | background color of svg   |
+  | qrcode_color       | string or {r, g, b}    | "#000000"     | color of QR code          |
+  | format             | :none or :indent       | :none         | indentation of elements   |
   ```
 
-  By this option, you can set the size QR code, background color (and also transparency)
+  By this option, you can set the size QR code, background color (and also opacity)
   of QR code or QR code colors.The format option is for removing indentation (of elements)
   in a svg file.
   Let's see an example below:
@@ -110,7 +110,7 @@ defmodule QRCode.Svg do
            rank_matrix: rank_matrix
          },
          %SvgSettings{
-           background_transparency: bg_tr,
+           background_opacity: bg_tr,
            background_color: bg,
            qrcode_color: qc,
            scale: scale,
@@ -166,12 +166,12 @@ defmodule QRCode.Svg do
     {:rect, background_settings(color), nil}
   end
 
-  defp background_rect(color, transparency)
-       when 0.0 <= transparency and transparency <= 1.0 do
+  defp background_rect(color, opacity)
+       when 0.0 <= opacity and opacity <= 1.0 do
     bg_settings =
       color
       |> background_settings()
-      |> Map.put(:"fill-opacity", transparency)
+      |> Map.put(:"fill-opacity", opacity)
 
     {:rect, bg_settings, nil}
   end
