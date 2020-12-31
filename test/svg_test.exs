@@ -8,7 +8,7 @@ defmodule SvgTest do
   @dst_to_file "/tmp/hello.svg"
   @rgx_svg_attrs ~r/[xmlns=http:\/\/www.w3.org\/2000\/svg | xlink=http:\/\/www.w3.org\/1999\/xlink]/
   @rgx_qr_color ~r/fill="#11AA88"/
-  @rgx_bg_transparency ~r/fill-opacity=/
+  @rgx_bg_opacity ~r/fill-opacity=/
 
   describe "Svg" do
     setup do
@@ -63,24 +63,24 @@ defmodule SvgTest do
       assert Regex.match?(@rgx_svg_attrs, rv)
     end
 
-    test "file should not contain backgound transparency" do
+    test "file should not contain backgound opacity" do
       rv =
         @dst_to_file
         |> File.stream!()
         |> Stream.take(2)
         |> Enum.at(1)
 
-      refute Regex.match?(@rgx_bg_transparency, rv)
+      refute Regex.match?(@rgx_bg_opacity, rv)
     end
 
-    test "file should contain backgound transparency" do
+    test "file should contain backgound opacity" do
       @text
       |> QR.create()
       |> Result.and_then(
         &Svg.save_as(
           &1,
           @dst_to_file,
-          %SvgSettings{background_transparency: 0, format: :indent}
+          %SvgSettings{background_opacity: 0, format: :indent}
         )
       )
 
@@ -90,7 +90,7 @@ defmodule SvgTest do
         |> Stream.take(2)
         |> Enum.at(1)
 
-      assert Regex.match?(@rgx_bg_transparency, rv)
+      assert Regex.match?(@rgx_bg_opacity, rv)
     end
 
     test "file should contain different qr code color than black" do

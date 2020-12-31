@@ -59,16 +59,16 @@ As you can see the svg file will be saved into `/path/to/` directory.
 Also there are a few settings for svg:
 
 ```elixir
-| Setting                 | Type                   | Default value | Description                    |
-|-------------------------|------------------------|---------------|--------------------------------|
-| scale                   | positive integer       | 10            | scale for svg QR code          |
-| background_transparency | nil or 0.0 <= x <= 1.0 | nil           | background transparency of svg |
-| background_color        | string or {r, g, b}    | "#ffffff"     | background color of svg        |
-| qrcode_color            | string or {r, g, b}    | "#000000"     | color of QR code               |
-| format                  | :none or :indent       | :none         | indentation of elements        |
+| Setting            | Type                   | Default value | Description               |
+|--------------------|------------------------|---------------|---------------------------|
+| scale              | positive integer       | 10            | scale for svg QR code     |
+| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | background opacity of svg |
+| background_color   | string or {r, g, b}    | "#ffffff"     | background color of svg   |
+| qrcode_color       | string or {r, g, b}    | "#000000"     | color of QR code          |
+| format             | :none or :indent       | :none         | indentation of elements   |
 ```
 
-By this option, you can set the size QR code, background color (and also transparency) of QR code or QR code colors. The format option is for removing indentation (of elements like is `<rect.. />`) in a svg file. It means that for value `:none`, the svg file contains only one "line of code" (no indentation), whereas for `:indent` svg file has a structure and svg code is more readable.
+By this option, you can set the size QR code, background color (and also opacity) of QR code or QR code colors. The format option is for removing indentation (of elements like is `<rect.. />`) in a svg file. It means that for value `:none`, the svg file contains only one "line of code" (no indentation), whereas for `:indent` svg file has a structure and svg code is more readable.
 
 Let's see an example below:
 
