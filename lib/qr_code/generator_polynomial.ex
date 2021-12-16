@@ -48,13 +48,15 @@ defmodule QRCode.GeneratorPolynomial do
 
     [last | _] = Enum.reverse(root_multiplied)
 
-    poly
-    |> tl()
-    |> Enum.zip(root_multiplied)
-    |> Enum.into([0], fn
-      {0, 0} -> 0
-      {x, y} -> GField.to_a(GField.to_i(x) ^^^ GField.to_i(y))
-    end)
-    |> Enum.concat([last])
+    result =
+      poly
+      |> tl()
+      |> Enum.zip(root_multiplied)
+      |> Enum.map(fn
+        {0, 0} -> 0
+        {x, y} -> GField.to_a(GField.to_i(x) ^^^ GField.to_i(y))
+      end)
+
+    [0 | result] ++ [last]
   end
 end
