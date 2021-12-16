@@ -54,7 +54,7 @@ defmodule QRCode.GeneratorPolynomial do
       |> Enum.zip(root_multiplied)
       |> Enum.map(fn
         {0, 0} -> 0
-        {x, y} -> GField.to_a(GField.to_i(x) ^^^ GField.to_i(y))
+        {x, y} -> GField.to_a(bxor(GField.to_i(x), GField.to_i(y)))
       end)
 
     [0 | result] ++ [last]

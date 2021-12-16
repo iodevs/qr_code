@@ -22,7 +22,7 @@ defmodule QRCode.Polynom do
     divisor
     |> Enum.map(fn val -> val |> GF.add(GF.to_a(first)) |> GF.to_i() end)
     |> zip(dividend)
-    |> Enum.map(fn {a, b} -> a ^^^ b end)
+    |> Enum.map(fn {a, b} -> bxor(a, b) end)
     |> tl()
   end
 

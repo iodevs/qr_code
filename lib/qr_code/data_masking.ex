@@ -189,26 +189,26 @@ defmodule QRCode.DataMasking do
     evaluate_cond_3([b, c, d, e, f, g, h, i, j, k] ++ tl, sum + pen)
   end
 
-  defp mask_pattern(val, row, col, 0) when rem(row + col, 2) == 0, do: val ^^^ 1
-  defp mask_pattern(val, row, _col, 1) when rem(row, 2) == 0, do: val ^^^ 1
-  defp mask_pattern(val, _row, col, 2) when rem(col, 3) == 0, do: val ^^^ 1
-  defp mask_pattern(val, row, col, 3) when rem(row + col, 3) == 0, do: val ^^^ 1
+  defp mask_pattern(val, row, col, 0) when rem(row + col, 2) == 0, do: bxor(val, 1)
+  defp mask_pattern(val, row, _col, 1) when rem(row, 2) == 0, do: bxor(val, 1)
+  defp mask_pattern(val, _row, col, 2) when rem(col, 3) == 0, do: bxor(val, 1)
+  defp mask_pattern(val, row, col, 3) when rem(row + col, 3) == 0, do: bxor(val, 1)
 
   defp mask_pattern(val, row, col, 4)
        when rem(floor(row / 2) + floor(col / 3), 2) == 0,
-       do: val ^^^ 1
+       do: bxor(val, 1)
 
   defp mask_pattern(val, row, col, 5)
        when rem(row * col, 2) + rem(row * col, 3) == 0,
-       do: val ^^^ 1
+       do: bxor(val, 1)
 
   defp mask_pattern(val, row, col, 6)
        when rem(rem(row * col, 2) + rem(row * col, 3), 2) == 0,
-       do: val ^^^ 1
+       do: bxor(val, 1)
 
   defp mask_pattern(val, row, col, 7)
        when rem(rem(row + col, 2) + rem(row * col, 3), 2) == 0,
-       do: val ^^^ 1
+       do: bxor(val, 1)
 
   defp mask_pattern(val, _row, _col, _mask_num), do: val
 end
