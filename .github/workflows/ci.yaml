@@ -4,8 +4,8 @@ on: push
 
 env:
   # OS: ubuntu-latest
-  OTP_VERSION: 21.0
-  ELIXIR_VERSION: 1.8
+  OTP_VERSION: 24.0
+  ELIXIR_VERSION: 1.12
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MIX_ENV: test
 
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: The OTP ${{ env.OTP_VERSION }} and Elixir ${{ env.ELIXIR_VERSION }} will be installed...
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-elixir@v1
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
