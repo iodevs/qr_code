@@ -44,17 +44,17 @@ defmodule QRCode.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:result, "~> 1.3.0"},
-      {:ex_maybe, "~> 1.1.1"},
-      {:ex_doc, "~> 0.23.0", only: :dev},
-      {:credo, "~> 1.5.4", only: [:dev, :test]},
-      {:excoveralls, "~> 0.13.4", only: [:dev, :test]},
-      {:inch_ex, "~> 2.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:xml_builder, "~> 2.2"},
+      {:credo, "~> 1.6", only: [:dev, :test]},
       {:csvlixir, "~> 2.0.4", only: [:dev, :test]},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.28", only: :dev},
+      {:ex_maybe, "~> 1.1.1"},
+      {:excoveralls, "~> 0.14", only: [:dev, :test]},
+      {:inch_ex, "~> 2.0", only: [:dev, :test], runtime: false},
       {:matrix_reloaded, "~> 2.2.1"},
-      {:propcheck, "~> 1.1", only: :test}
+      {:propcheck, "~> 1.4", only: :test},
+      {:result, "~> 1.7", override: true},
+      {:xml_builder, "~> 2.2"},
     ]
   end
 
