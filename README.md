@@ -15,7 +15,7 @@ This library is useful for generating QR code to your projects.
 ```elixir
 def deps do
   [
-    {:qr_code, "~> 2.2.1"}
+    {:qr_code, "~> 2.3.0"}
   ]
 end
 ```
