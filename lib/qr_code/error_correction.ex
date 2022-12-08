@@ -292,12 +292,12 @@ defmodule QRCode.ErrorCorrection do
   end
 
   defp put_info(%__MODULE__{} = ecc, version, level) do
-    {ec_codewrods_per_block, blocks_in_group1, codewords_in_group1, blocks_in_group2,
+    {ec_codewords_per_block, blocks_in_group1, codewords_in_group1, blocks_in_group2,
      codewords_in_group2} = get_ecc_row(version, level)
 
     %{
       ecc
-      | ec_codewrods_per_block: ec_codewrods_per_block,
+      | ec_codewrods_per_block: ec_codewords_per_block,
         blocks_in_group1: blocks_in_group1,
         codewords_per_block_in_group1: codewords_in_group1,
         blocks_in_group2: blocks_in_group2,
