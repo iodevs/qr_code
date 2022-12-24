@@ -1,18 +1,25 @@
-defmodule QrCode.Render.Png do
+defmodule QRCode.Render.Png do
   @moduledoc """
   PNG serializer and helper functions.
   """
 
   alias MatrixReloaded.Matrix
-  alias QRCode.{PngSettings, QR}
+  alias QRCode.QR
+  alias QRCode.Render.PngSettings
 
   @doc """
   Create Png image from QR matrix as binary.
   """
-  @spec create(QR.t(), PngSettings.t()) :: binary()
-  def create(%QR{matrix: matrix}, settings \\ %PngSettings{}) do
-    create_png(matrix, settings)
+  @spec create(Result.t(String.t(), QR.t()), PngSettings.t()) :: Result.t(String.t(), binary())
+  def create(qr, settings \\ %PngSettings{})
+
+  def create({:ok, %QR{matrix: matrix}}, settings) do
+    matrix
+    |> create_png(settings)
+    |> Result.ok()
   end
+
+  def create(error, _settings), do: error
 
   @doc """
   Saves QR code to png file.  This function returns  [Result](https://hexdocs.pm/result/api-reference.html),

@@ -1,4 +1,4 @@
-defmodule QrCode.Render.PngSettings do
+defmodule QRCode.Render.PngSettings do
   @moduledoc """
   Settings structure for Png.
   """

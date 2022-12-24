@@ -48,7 +48,7 @@ We've just generated QR code and now we want to save it to some image file forma
 ```elixir
   iex> "Hello World"
         |> QRCode.create(:high)
-        |> QRCode.render(:svg)
+        |> QRCode.render()
         |> QRCode.save("/path/to/hello.svg")
   {:ok, "/path/to/hello.svg"}
 ```
@@ -72,7 +72,7 @@ Also there are a few settings for svg and png:
 
 Notes:
 
-- `:image` inserts image `/path/to/image.type` with `size`, this number must be positive.
+- `:image` inserts image `/path/to/image.type` with `size`, this number must be positive integer.
   There are a few limitations:
 
   - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
@@ -83,8 +83,16 @@ Notes:
 Let's see an example with embedded image below:
 
 ```elixir
-  iex> image = {"tmp/elixir.svg", 100}
-  iex> svg_settings = %QRCode.Render.SvgSettings{qrcode_color: {17, 170, 136}, image: image}
+  iex> image = {"/tmp/elixir.svg", 100}
+  iex> svg_settings = %QRCode.Render.SvgSettings{qrcode_color: {17, 170, 136}, image: image, structure: :readable}
+  %QRCode.Render.SvgSettings{
+    background_color: "#ffffff",
+    background_opacity: nil,
+    image: {"/tmp/elixir.svg", 100},
+    qrcode_color: {17, 170, 136},
+    scale: 10,
+    structure: :readable
+  }
   iex> "your_string"
         |> QRCode.create()
         |> QRCode.render(:svg, svg_settings)
