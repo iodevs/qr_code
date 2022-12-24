@@ -1,4 +1,4 @@
-defmodule QRCode.SvgSettings do
+defmodule QRCode.Render.SvgSettings do
   @moduledoc """
   Settings structure for Svg.
   """

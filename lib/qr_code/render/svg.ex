@@ -1,10 +1,11 @@
-defmodule QRCode.Svg do
+defmodule QRCode.Render.Svg do
   @moduledoc """
   SVG structure and helper functions.
   """
 
   alias MatrixReloaded.Matrix
-  alias QRCode.{QR, SvgSettings}
+  alias QRCode.QR
+  alias QRCode.Render.SvgSettings
 
   @type t :: %__MODULE__{
           xmlns: String.t(),
