@@ -43,55 +43,78 @@ You can also change the error correction level according to your needs. There ar
 > Be aware higher levels of error correction require more bytes, so the higher the error correction level,
 > the larger the QR code will have to be.
 
-We've just generated QR code and now we want to save it to some image file format with high quality. We can do
-that by using `QRCode.Svg.save_as/3` function:
+We've just generated QR code and now we want to save it to some image file format with high quality. This library supports now two image types: `svg` and `png`. So basic using is following:
 
 ```elixir
   iex> "Hello World"
         |> QRCode.create(:high)
-        |> Result.and_then(&QRCode.Svg.save_as(&1,"/path/to/hello.svg"))
+        |> QRCode.render(:svg)
+        |> QRCode.save("/path/to/hello.svg")
   {:ok, "/path/to/hello.svg"}
 ```
 
-where we used an error correction level `:high` and our library [Result](https://hexdocs.pm/result/api-reference.html).
-As you can see the svg file will be saved into `/path/to/` directory.
+where we used an error correction level `:high`. Note the function `QRCode.render()` has default render set up to `:svg` with default `SvgSettings`. Similarly, if you want to export to png just use `QRCode.render(:png)` with/without `PngSettings`. Calling by `QRCode.save` function you save QR code to file `/path/to/file.type`. Also instead of saving QR code to file, you can use a function `QRCode.to_base64()` to encode QR to base 64.
 
-Also there are a few settings for svg:
+Also there are a few settings for svg and png:
+
+### Svg settings
 
 ```elixir
-| Setting            | Type                   | Default value | Description               |
-|--------------------|------------------------|---------------|---------------------------|
-| scale              | positive integer       | 10            | scale for svg QR code     |
-| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | background opacity of svg |
-| background_color   | string or {r, g, b}    | "#ffffff"     | background color of svg   |
-| qrcode_color       | string or {r, g, b}    | "#000000"     | color of QR code          |
-| format             | :none or :indent       | :none         | indentation of elements   |
+| Setting            | Type                   | Default value | Description                            |
+|--------------------|------------------------|---------------|----------------------------------------|
+| scale              | positive integer       | 10            | changes size of rendered QR code       |
+| image              | {string, size} or nil  | nil           | puts the image to the center of svg    |
+| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg         |
+| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg           |
+| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
+| structure          | :minify or :readable   | :minify       | minifies or makes readable of svg file |
 ```
 
-By this option, you can set the size QR code, background color (and also opacity) of QR code or QR code colors. The format option is for removing indentation (of elements like is `<rect.. />`) in a svg file. It means that for value `:none`, the svg file contains only one "line of code" (no indentation), whereas for `:indent` svg file has a structure and svg code is more readable.
+Notes:
 
-Let's see an example below:
+- `:image` inserts image `/path/to/image.type` with `size`, this number must be positive.
+  There are a few limitations:
+
+  - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
+  - Be careful with the `size` of the embedded image, if you set it to big, it may not be readable be a QR reader.
+
+- By `:structure` you can minify a final size of svg file or make it readable if you need. In the readable case, the file size can be slightly larger and the svg code is structured and thus more clearer.
+
+Let's see an example with embedded image below:
 
 ```elixir
-  iex> settings = %QRCode.SvgSettings{qrcode_color: {17, 170, 136}}
+  iex> image = {"tmp/elixir.svg", 100}
+  iex> svg_settings = %QRCode.Render.SvgSettings{qrcode_color: {17, 170, 136}, image: image}
   iex> "your_string"
         |> QRCode.create()
-        |> Result.and_then(&QRCode.Svg.save_as(&1,"/tmp/your_name.svg", settings))
-  {:ok, "/tmp/your_name.svg"}
+        |> QRCode.render(:svg, svg_settings)
+        |> QRCode.save("/tmp/qr-with-image.svg")
+  {:ok, "/tmp/qr-with-image.svg"}
 ```
 
-![QR code color](docs/qrcode_color.svg)
+![QR code color](docs/qrcode_color-with-image.svg)
+
+### Png settings
+
+```elixir
+| Setting            | Type                   | Default value | Description                            |
+|--------------------|------------------------|---------------|----------------------------------------|
+| scale              | positive integer       | 10            | changes size of rendered QR            |
+| margin             | non-negative integer   | 0             | sets margin of for png QR code         |
+| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png           |
+| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
+```
 
 ## Limitations
 
-The QR code is limited by characters that can contain. In our case this library was developed only for `Byte` mode.
-For example, the limits for **40 version** are:
+The QR code is limited by characters that can contain. In our case this library was developed only for `Byte` and `Alphanumeric` mode. For example, the limits for **40 version** are:
 
 ```elixir
-|           |      Maximum number of characters      |
-| Level     |   low   |  medium  | quartile |  high  |
-|-----------|---------|----------|----------|--------|
-| Byte mode |   2953  |   2331   |   1663   |  1273  |
+|                   |      Maximum number of characters      |
+| Level             |   low   |  medium  | quartile |  high  |
+|-------------------|---------|----------|----------|--------|
+| Byte mode         |   2953  |   2331   |   1663   |  1273  |
+| Alphanumeric mode |   4296  |   3391   |   2420   |  1852  |
 ```
 
 For other versions and modes see [Character Capacities](https://www.thonky.com/qr-code-tutorial/character-capacities) in documentation.
@@ -102,17 +125,6 @@ If anyone needs the rest of encoding modes,
 please open new issue or push your code in this repository.
 
 ## Notes
-
-- If you need a png format instead of svg, you can use [mogrify](https://github.com/route/mogrify) to convert it:
-
-  ```elixir
-  import Mogrify
-
-  "qr_code.svg"
-    |> Mogrify.open()
-    |> format("png")
-    |> save(path: "qr_code.png")
-  ```
 
 - You can also save the QR matrix to csv using by [csvlixir](https://github.com/jimm/csvlixir):
 
