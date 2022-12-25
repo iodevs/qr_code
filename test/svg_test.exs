@@ -2,7 +2,8 @@ defmodule SvgTest do
   @moduledoc false
 
   use ExUnit.Case
-  alias QRCode.{QR, Svg, SvgSettings}
+  alias QRCode
+  alias QRCode.Render.SvgSettings
 
   @text "HELLO WORLD"
   @dst_to_file "/tmp/hello.svg"
@@ -13,8 +14,9 @@ defmodule SvgTest do
   describe "Svg" do
     setup do
       @text
-      |> QR.create()
-      |> Result.and_then(&Svg.save_as(&1, @dst_to_file, %SvgSettings{format: :indent}))
+      |> QRCode.create()
+      |> QRCode.render(:svg, %SvgSettings{structure: :readable})
+      |> QRCode.save(@dst_to_file)
 
       on_exit(fn ->
         :ok = File.rm(@dst_to_file)
@@ -26,10 +28,10 @@ defmodule SvgTest do
     end
 
     test "should create svg from qr matrix" do
-      expected =
+      {:ok, expected} =
         @text
-        |> QR.create()
-        |> Result.and_then(&Svg.create(&1, %SvgSettings{format: :indent}))
+        |> QRCode.create()
+        |> QRCode.render(:svg, %SvgSettings{structure: :readable})
 
       rv =
         @dst_to_file
@@ -39,15 +41,16 @@ defmodule SvgTest do
     end
 
     test "should encoded svg binary to base64" do
-      expected =
+      {:ok, expected} =
         @text
-        |> QR.create()
-        |> Result.and_then(&Svg.create/1)
+        |> QRCode.create()
+        |> QRCode.render()
 
       {:ok, rv} =
         @text
-        |> QR.create()
-        |> Result.map(&Svg.to_base64/1)
+        |> QRCode.create()
+        |> QRCode.render()
+        |> QRCode.to_base64()
         |> Result.and_then(&Base.decode64/1)
 
       assert expected == rv
@@ -63,7 +66,7 @@ defmodule SvgTest do
       assert Regex.match?(@rgx_svg_attrs, rv)
     end
 
-    test "file should not contain backgound opacity" do
+    test "file should not contain background opacity" do
       rv =
         @dst_to_file
         |> File.stream!()
@@ -73,16 +76,14 @@ defmodule SvgTest do
       refute Regex.match?(@rgx_bg_opacity, rv)
     end
 
-    test "file should contain backgound opacity" do
+    test "file should contain background opacity" do
       @text
-      |> QR.create()
-      |> Result.and_then(
-        &Svg.save_as(
-          &1,
-          @dst_to_file,
-          %SvgSettings{background_opacity: 0, format: :indent}
-        )
+      |> QRCode.create()
+      |> QRCode.render(
+        :svg,
+        %SvgSettings{background_opacity: 0, structure: :readable}
       )
+      |> QRCode.save(@dst_to_file)
 
       rv =
         @dst_to_file
@@ -95,14 +96,12 @@ defmodule SvgTest do
 
     test "file should contain different qr code color than black" do
       @text
-      |> QR.create()
-      |> Result.and_then(
-        &Svg.save_as(
-          &1,
-          @dst_to_file,
-          %SvgSettings{qrcode_color: {17, 170, 136}, format: :indent}
-        )
+      |> QRCode.create()
+      |> QRCode.render(
+        :svg,
+        %SvgSettings{qrcode_color: {17, 170, 136}, structure: :readable}
       )
+      |> QRCode.save(@dst_to_file)
 
       rv =
         @dst_to_file
