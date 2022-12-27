@@ -63,9 +63,6 @@ defmodule QRCode do
           |> QRCode.save("/tmp/to/hello.png")
     {:ok, "/path/to/hello.png"}
   ```
-
-  Both examples give same result:
-
   ![QR code color](docs/qrcode_color.png)
   """
   @spec save(Result.t(any(), binary()), Path.t()) ::

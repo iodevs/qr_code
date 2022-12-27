@@ -108,7 +108,6 @@ Let's see an example with embedded image below:
 | Setting            | Type                   | Default value | Description                            |
 |--------------------|------------------------|---------------|----------------------------------------|
 | scale              | positive integer       | 10            | changes size of rendered QR            |
-| margin             | non-negative integer   | 0             | sets margin of for png QR code         |
 | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png           |
 | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
 ```
