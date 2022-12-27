@@ -8,13 +8,11 @@ defmodule QRCode.Render.PngSettings do
 
   @type t :: %__MODULE__{
           scale: integer,
-          margin: integer,
           background_color: background_color,
           qrcode_color: qrcode_color
         }
 
   defstruct scale: 10,
-            margin: 0,
             background_color: "#ffffff",
             qrcode_color: "#000000"
 end
