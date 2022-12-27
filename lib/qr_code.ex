@@ -14,13 +14,13 @@ defmodule QRCode do
   defdelegate create!(text, ecc_level \\ :low), to: QRCode.QR
 
   @doc """
-  See `QRCode.Render/2`
+  See `QRCode.Render.render/2`
   """
   defdelegate render(qr, render_module \\ :svg),
     to: QRCode.Render
 
   @doc """
-  See `QRCode.Render/3`
+  See `QRCode.Render.render/3`
   """
   defdelegate render(qr, render_module, render_settings),
     to: QRCode.Render

@@ -100,16 +100,16 @@ Let's see an example with embedded image below:
   {:ok, "/tmp/qr-with-image.svg"}
 ```
 
-![QR code color](docs/qrcode_color-with-image.svg)
+![QR code color](docs/qrcode_color_with_image.svg)
 
 ### Png settings
 
 ```elixir
-| Setting            | Type                   | Default value | Description                            |
-|--------------------|------------------------|---------------|----------------------------------------|
-| scale              | positive integer       | 10            | changes size of rendered QR            |
-| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png           |
-| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
+| Setting            | Type                   | Default value | Description                  |
+|--------------------|------------------------|---------------|------------------------------|
+| scale              | positive integer       | 10            | changes size of rendered QR  |
+| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png |
+| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR             |
 ```
 
 ## Limitations
