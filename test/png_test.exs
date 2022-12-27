@@ -52,5 +52,23 @@ defmodule PngTest do
 
       assert expected == rv
     end
+
+    test "file should contain different qr code color than black" do
+      expected =
+        @text
+        |> QRCode.create()
+        |> QRCode.render(
+          :png,
+          %PngSettings{qrcode_color: {17, 170, 136}}
+        )
+
+      QRCode.save(expected, @dst_to_file)
+
+      rv =
+        @dst_to_file
+        |> File.read()
+
+      assert expected == rv
+    end
   end
 end
