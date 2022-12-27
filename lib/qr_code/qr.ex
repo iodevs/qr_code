@@ -103,10 +103,10 @@ defmodule QRCode.QR do
         version: 1
       }}
 
-  For saving QR code to svg file, use `QRCode.Svg.save_as/3` function:
+  For saving QR code to svg file, you have to render it first and then save it:
 
       iex> qr = QRCode.QR.create("Hello World", :high)
-      iex> qr |> Result.and_then(&QRCode.Svg.save_as(&1,"hello.svg"))
+      iex> qr |> QRCode.render() |> QRCode.save("hello.svg")
       {:ok, "hello.svg"}
 
   The svg file will be saved into your project directory.
