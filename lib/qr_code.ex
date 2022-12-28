@@ -72,27 +72,11 @@ defmodule QRCode do
   @spec save(Result.t(any(), binary()), Path.t()) ::
           Result.t(String.t() | File.posix() | :badarg | :terminated, Path.t())
   def save({:ok, rendered_qr_matrix}, path_with_file_name) do
-    path_with_file_name
-    |> File.open([:write])
-    |> Result.and_then(&write(&1, rendered_qr_matrix))
-    |> Result.and_then(&close(&1, path_with_file_name))
+    case File.write(path_with_file_name, rendered_qr_matrix) do
+      :ok -> {:ok, path_with_file_name}
+      err -> err
+    end
   end
 
   def save(error, _path_with_file_name), do: error
-
-  # Private
-
-  defp write(file, data) do
-    case IO.binwrite(file, data) do
-      :ok -> {:ok, file}
-      err -> err
-    end
-  end
-
-  defp close(file, file_name) do
-    case File.close(file) do
-      :ok -> {:ok, file_name}
-      err -> err
-    end
-  end
 end
