@@ -28,8 +28,6 @@ defmodule QRCode.Render.Svg do
   attributes and svg elements.
   """
   @spec create(Result.t(String.t(), QR.t()), SvgSettings.t()) :: Result.t(String.t(), binary())
-  def create(qr, settings \\ %SvgSettings{})
-
   def create({:ok, %QR{matrix: matrix}}, settings) do
     matrix
     |> create_svg(settings)
