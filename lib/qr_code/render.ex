@@ -22,14 +22,14 @@ defmodule QRCode.Render do
 
   You can change the appearance of `svg` using the options:
   ```elixir
-  | Setting            | Type                   | Default value | Description                            |
-  |--------------------|------------------------|---------------|----------------------------------------|
-  | scale              | positive integer       | 10            | changes size of rendered QR code       |
-  | image              | {string, size} or nil  | nil           | puts the image to the center of svg    |
-  | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg         |
-  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg           |
-  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
-  | structure          | :minify or :readable   | :minify       | minifies or makes readable of svg file |
+  | Setting            | Type                   | Default value | Description                         |
+  |--------------------|------------------------|---------------|-------------------------------------|
+  | scale              | positive integer       | 10            | changes size of rendered QR code    |
+  | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
+  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
+  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
+  | image              | {string, size} or nil  | nil           | puts the image to the center of svg |
+  | structure          | :minify or :readable   | :minify       | minifies or makes readable svg file |
 
   svg_settings = %QRCode.Render.SvgSettings{qrcode_color: {17, 170, 136}, structure: :readable}
   ```
@@ -37,11 +37,11 @@ defmodule QRCode.Render do
   and same a way for `png`:
 
   ```elixir
-  | Setting            | Type                   | Default value | Description                            |
-  |--------------------|------------------------|---------------|----------------------------------------|
-  | scale              | positive integer       | 10            | changes size of rendered QR code       |
-  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png           |
-  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
+  | Setting            | Type                   | Default value | Description                  |
+  |--------------------|------------------------|---------------|------------------------------|
+  | scale              | positive integer       | 10            | changes size of rendered QR  |
+  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png |
+  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR             |
   ```
   """
   @spec render(Result.t(String.t(), binary()), atom(), SvgSettings.t() | PngSettings.t()) ::

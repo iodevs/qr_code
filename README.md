@@ -60,14 +60,14 @@ Also there are a few settings for svg and png:
 ### Svg settings
 
 ```elixir
-| Setting            | Type                   | Default value | Description                            |
-|--------------------|------------------------|---------------|----------------------------------------|
-| scale              | positive integer       | 10            | changes size of rendered QR code       |
-| image              | {string, size} or nil  | nil           | puts the image to the center of svg    |
-| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg         |
-| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg           |
-| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                       |
-| structure          | :minify or :readable   | :minify       | minifies or makes readable of svg file |
+| Setting            | Type                   | Default value | Description                         |
+|--------------------|------------------------|---------------|-------------------------------------|
+| scale              | positive integer       | 10            | changes size of rendered QR code    |
+| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
+| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
+| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
+| image              | {string, size} or nil  | nil           | puts the image to the center of svg |
+| structure          | :minify or :readable   | :minify       | minifies or makes readable svg file |
 ```
 
 Notes:
@@ -83,12 +83,14 @@ Notes:
 Let's see an example with embedded image below:
 
 ```elixir
-  iex> image = {"/tmp/elixir.svg", 100}
-  iex> svg_settings = %QRCode.Render.SvgSettings{qrcode_color: {17, 170, 136}, image: image, structure: :readable}
+  iex> alias QRCode.Render.SvgSettings
+  iex> image = {"/docs/elixir.svg", 100}
+  iex> qr_color = {17, 170, 136}
+  iex> svg_settings = %SvgSettings{qrcode_color: qr_color, image: image, structure: :readable}
   %QRCode.Render.SvgSettings{
     background_color: "#ffffff",
     background_opacity: nil,
-    image: {"/tmp/elixir.svg", 100},
+    image: {"/docs/elixir.svg", 100},
     qrcode_color: {17, 170, 136},
     scale: 10,
     structure: :readable
@@ -101,6 +103,8 @@ Let's see an example with embedded image below:
 ```
 
 ![QR code color](docs/qrcode_color_with_image.svg)
+
+Similarly, you can use `png` with/without `PngSettings`.
 
 ### Png settings
 
