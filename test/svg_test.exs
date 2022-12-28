@@ -10,6 +10,7 @@ defmodule SvgTest do
   @rgx_svg_attrs ~r/[xmlns=http:\/\/www.w3.org\/2000\/svg | xlink=http:\/\/www.w3.org\/1999\/xlink]/
   @rgx_qr_color ~r/fill="#11AA88"/
   @rgx_bg_opacity ~r/fill-opacity=/
+  @rgx_embedded_image ~r/href="data:image\/png;/
 
   describe "Svg" do
     setup do
@@ -21,6 +22,14 @@ defmodule SvgTest do
       on_exit(fn ->
         :ok = File.rm(@dst_to_file)
       end)
+    end
+
+    test "render should fail with error" do
+      rv =
+        Result.error("Error")
+        |> QRCode.render()
+
+      assert rv == {:error, "Error"}
     end
 
     test "should save qr code to svg file" do
@@ -40,7 +49,7 @@ defmodule SvgTest do
       assert expected == rv
     end
 
-    test "should encoded svg binary to base64" do
+    test "should encode svg binary to base64" do
       {:ok, expected} =
         @text
         |> QRCode.create()
@@ -92,6 +101,37 @@ defmodule SvgTest do
         |> Enum.at(1)
 
       assert Regex.match?(@rgx_bg_opacity, rv)
+    end
+
+    test "file should contain embedded image" do
+      png_image = "/tmp/embedded_img.png"
+
+      on_exit(fn ->
+        :ok = File.rm(png_image)
+      end)
+
+      @text
+      |> QRCode.create()
+      |> QRCode.render(:png)
+      |> QRCode.save(png_image)
+
+      settings = %SvgSettings{
+        image: {png_image, 100},
+        structure: :readable
+      }
+
+      @text
+      |> QRCode.create()
+      |> QRCode.render(:svg, settings)
+      |> QRCode.save(@dst_to_file)
+
+      rv =
+        @dst_to_file
+        |> File.stream!()
+        |> Stream.take(-2)
+        |> Enum.at(-2)
+
+      assert Regex.match?(@rgx_embedded_image, rv)
     end
 
     test "file should contain different qr code color than black" do

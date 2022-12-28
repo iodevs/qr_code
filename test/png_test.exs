@@ -20,6 +20,14 @@ defmodule PngTest do
       end)
     end
 
+    test "render should fail with error" do
+      rv =
+        Result.error("Error")
+        |> QRCode.render(:png)
+
+      assert rv == {:error, "Error"}
+    end
+
     test "should save qr code to png file" do
       assert File.exists?(@dst_to_file)
     end
@@ -37,7 +45,7 @@ defmodule PngTest do
       assert expected == rv
     end
 
-    test "should encoded png binary to base64" do
+    test "should encode png binary to base64" do
       {:ok, expected} =
         @text
         |> QRCode.create()
