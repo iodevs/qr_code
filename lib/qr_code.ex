@@ -30,10 +30,14 @@ defmodule QRCode do
   This encoded string can be then used in Html as
 
   For `svg` use
-  `<img src="data:image/svg+xml; base64, encoded_svg_qr_code" />`
+  ```
+  <img src="data:image/svg+xml; base64, encoded_svg_qr_code" alt="QR code" />
+  ```
 
-  and in case of `png` use
-  `<img src="data:image/png+xml; base64, encoded_png_qr_code" />`
+  and in case of `png`
+  ```
+  <img src="data:image/png; base64, encoded_png_qr_code" alt="QR code" />
+  ```
   """
   @spec to_base64(Result.t(String.t(), binary())) :: Result.t(String.t(), binary())
   def to_base64({:ok, rendered_qr_matrix}) do
