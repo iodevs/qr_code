@@ -1,0 +1,23 @@
+version: '3'
+services:
+  qr_code:
+    image: qrcode:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./tmp/erlang-history:/root/.cache/erlang-history
+      - ./config:/usr/src/app/config
+      - ./lib:/usr/src/app/lib
+      - ./priv:/usr/src/app/priv
+      - ./mix.exs:/usr/src/app/mix.exs
+      - ./mix.lock:/usr/src/app/mix.lock
+      - ./test:/usr/src/app/test
+      - elixir_build:/usr/src/app/_build
+      - elixir_deps:/usr/src/app/deps
+      - elixir_dialyzer:/usr/src/app/priv/plts
+
+volumes:
+  elixir_build:
+  elixir_deps:
+  elixir_dialyzer:
