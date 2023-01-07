@@ -76,7 +76,7 @@ Notes:
   There are a few limitations:
 
   - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
-  - Be careful with the `size` of the embedded image, if you set it to big, it may not be readable be a QR reader.
+  - Be careful with the `size` of the embedded image, if you set it to big, it may not be readable by a QR reader.
 
 - By `:structure` you can minify a final size of svg file or make it readable if you need. In the readable case, the file size can be slightly larger and the svg code is structured and thus more clearer.
 
