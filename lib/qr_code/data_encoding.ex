@@ -16,7 +16,6 @@ defmodule QRCode.DataEncoding do
     apply(module, :encode, [qr])
   end
 
-  defp get_module(:byte) do
-    QRCode.DataEncoding.ByteEncoding
-  end
+  defp get_module(:byte), do: QRCode.DataEncoding.Byte
+  defp get_module(:alphanumeric), do: QRCode.DataEncoding.Alphanumeric
 end
