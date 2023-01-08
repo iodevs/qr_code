@@ -23,6 +23,7 @@ defmodule QRCode.QR do
         }
 
   @levels [:low, :medium, :quartile, :high]
+  @modes [:alphanumeric, :byte]
   # @modes [
   #   numeric: 0b0001,
   #   alphanumeric: 0b0010,
@@ -42,6 +43,7 @@ defmodule QRCode.QR do
             mask_num: 0
 
   defguard level(lvl) when lvl in @levels
+  defguard mode(m) when m in @modes
   defguard version(v) when v in 1..40
   defguard masking(m) when m in 0..7
 
@@ -112,10 +114,10 @@ defmodule QRCode.QR do
   The svg file will be saved into your project directory.
   """
   @spec create(String.t(), level()) :: Result.t(String.t(), t())
-  def create(orig, level \\ :low) when level(level) do
+  def create(orig, level \\ :low, mode \\ :byte) when level(level) and mode(mode) do
     %__MODULE__{orig: orig, ecc_level: level}
-    |> QRCode.ByteMode.put_version()
-    |> Result.map(&QRCode.DataEncoding.byte_encode/1)
+    |> QRCode.Mode.select(mode)
+    |> Result.map(&QRCode.DataEncoding.encode/1)
     |> Result.map(&QRCode.ErrorCorrection.put/1)
     |> Result.map(&QRCode.Message.put/1)
     |> Result.and_then(&QRCode.Placement.put_patterns/1)

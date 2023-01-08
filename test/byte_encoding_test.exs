@@ -1,11 +1,12 @@
-defmodule DataEncodingTest do
+defmodule ByteEncodingTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use PropCheck
-  doctest QRCode.DataEncoding
+  doctest QRCode.DataEncoding.ByteEncoding
 
-  alias QRCode.{DataEncoding, ErrorCorrection, QR}
   alias Generators.QR, as: QRGenerator
+  alias QRCode.DataEncoding.ByteEncoding
+  alias QRCode.{ErrorCorrection, QR}
 
   # Tests
 
@@ -14,7 +15,7 @@ defmodule DataEncodingTest do
   property "should contain mode indicator" do
     forall qr <- qr() do
       qr
-      |> DataEncoding.byte_encode()
+      |> ByteEncoding.encode()
       |> check_mode_indicator()
     end
   end
@@ -22,7 +23,7 @@ defmodule DataEncodingTest do
   property "should add right byte count" do
     forall qr <- qr() do
       qr
-      |> DataEncoding.byte_encode()
+      |> ByteEncoding.encode()
       |> check_character_count()
     end
   end
@@ -30,7 +31,7 @@ defmodule DataEncodingTest do
   property "should have enough bytes" do
     forall qr <- qr() do
       qr
-      |> DataEncoding.byte_encode()
+      |> ByteEncoding.encode()
       |> check_total_length()
     end
   end
@@ -38,7 +39,7 @@ defmodule DataEncodingTest do
   property "should fill pad bytes" do
     forall qr <- qr() do
       qr
-      |> DataEncoding.byte_encode()
+      |> ByteEncoding.encode()
       |> check_pad_bytes()
     end
   end
