@@ -1,4 +1,4 @@
-defmodule QRCode.DataEncoding.ByteEncoding do
+defmodule QRCode.DataEncoding.Byte do
   @moduledoc """
   Encoding codewords for Byte mode.
   """
