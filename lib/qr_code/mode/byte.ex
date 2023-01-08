@@ -3,8 +3,6 @@ defmodule QRCode.Mode.Byte do
   Byte mode character capacities table.
   """
 
-  alias QRCode.QR
-
   @level_low [
     {17, 1},
     {32, 2},
