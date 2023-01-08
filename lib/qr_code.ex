@@ -6,12 +6,12 @@ defmodule QRCode do
   @doc """
   See `QRCode.QR.create/2`
   """
-  defdelegate create(text, ecc_level \\ :low), to: QRCode.QR
+  defdelegate create(text, ecc_level \\ :low, mode \\ :byte), to: QRCode.QR
 
   @doc """
   See `QRCode.QR.create!/2`
   """
-  defdelegate create!(text, ecc_level \\ :low), to: QRCode.QR
+  defdelegate create!(text, ecc_level \\ :low, mode \\ :byte), to: QRCode.QR
 
   @doc """
   See `QRCode.Render.render/2`

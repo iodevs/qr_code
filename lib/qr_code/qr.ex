@@ -113,7 +113,7 @@ defmodule QRCode.QR do
 
   The svg file will be saved into your project directory.
   """
-  @spec create(String.t(), level()) :: Result.t(String.t(), t())
+  @spec create(String.t(), level(), mode()) :: Result.t(String.t(), t())
   def create(orig, level \\ :low, mode \\ :byte) when level(level) and mode(mode) do
     %__MODULE__{orig: orig, ecc_level: level}
     |> QRCode.Mode.select(mode)
@@ -129,8 +129,8 @@ defmodule QRCode.QR do
   @doc """
   The same as `create/2`, but raises a `QRCode.Error` exception if it fails.
   """
-  @spec create!(String.t(), level()) :: t()
-  def create!(text, level \\ :low) when level(level) do
+  @spec create!(String.t(), level(), mode()) :: t()
+  def create!(text, level \\ :low, mode \\ :byte) when level(level) and mode(mode) do
     case create(text, level) do
       {:ok, qr} -> qr
       {:error, msg} -> raise QRCode.Error, message: msg
