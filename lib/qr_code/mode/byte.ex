@@ -1,4 +1,4 @@
-defmodule QRCode.ByteMode do
+defmodule QRCode.Mode.Byte do
   @moduledoc """
   Byte mode character capacities table.
   """
