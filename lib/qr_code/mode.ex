@@ -17,19 +17,6 @@ defmodule QRCode.Mode do
     %{qr | mode: mode}
   end
 
-  defp get_module(:byte) do
-    QRCode.Mode.Byte
-  end
-
-  defp get_module(:alphanumeric) do
-    QRCode.Mode.Alphanumeric
-  end
-
-  defp call(module, level) do
-    apply(module, :level, [level])
-  end
-
-  # @spec put_version(QR.t()) :: Result.t(String.t(), QR.t())
   defp put_version(%QR{orig: orig} = qr) do
     qr
     |> get_character_capacities_for_level()
@@ -51,5 +38,12 @@ defmodule QRCode.Mode do
         {:cont, acc}
       end
     end)
+  end
+
+  defp get_module(:byte), do: QRCode.Mode.Byte
+  defp get_module(:alphanumeric), do: QRCode.Mode.Alphanumeric
+
+  defp call(module, level) do
+    apply(module, :level, [level])
   end
 end
