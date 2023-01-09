@@ -1,11 +1,11 @@
-defmodule ByteModeTest do
+defmodule ModeTest do
   @moduledoc false
   use ExUnit.Case
   use PropCheck
-  doctest QRCode.Mode.Byte
+  doctest QRCode.Mode
 
   alias Generators.QR, as: QRGenerator
-  alias QRCode.Mode.Byte
+  alias QRCode.Mode
   alias QRCode.QR
 
   # Tests
@@ -13,9 +13,9 @@ defmodule ByteModeTest do
   # Properties
 
   property "should find proper version" do
-    forall qr <- qr() do
+    forall {qr, mode} <- {qr(), oneof([:byte, :alphanumeric])} do
       qr
-      |> Byte.put_version()
+      |> Mode.select(mode)
       |> check_version(qr.orig, qr.ecc_level)
     end
   end
