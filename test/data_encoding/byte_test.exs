@@ -110,8 +110,8 @@ defmodule ByteEncodingTest do
 
   def qr() do
     let {level, version} <- {QRGenerator.level(), QRGenerator.version()} do
-      lower = QRGenerator.get_capacity_for(level, version - 1)
-      upper = QRGenerator.get_capacity_for(level, version)
+      lower = QRGenerator.get_capacity_for(:byte, level, version - 1)
+      upper = QRGenerator.get_capacity_for(:byte, level, version)
       diff = upper - lower
       count = :rand.uniform(diff) + lower
 
