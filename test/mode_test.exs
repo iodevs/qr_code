@@ -16,18 +16,18 @@ defmodule ModeTest do
     forall {qr, mode} <- {qr(), oneof([:byte, :alphanumeric])} do
       qr
       |> Mode.select(mode)
-      |> check_version(qr.orig, qr.ecc_level)
+      |> check_version(mode, qr.orig, qr.ecc_level)
     end
   end
 
   # Helpers
 
-  defp check_version({:ok, qr}, message, level) do
-    byte_size(message) <= QRGenerator.get_capacity_for(level, qr.version)
+  defp check_version({:ok, qr}, mode, message, level) do
+    byte_size(message) <= QRGenerator.get_capacity_for(mode, level, qr.version)
   end
 
-  defp check_version({:error, _msg}, message, level) do
-    byte_size(message) > QRGenerator.get_capacity_for(level, 40)
+  defp check_version({:error, _msg}, mode, message, level) do
+    byte_size(message) > QRGenerator.get_capacity_for(mode, level, 40)
   end
 
   # Generators
