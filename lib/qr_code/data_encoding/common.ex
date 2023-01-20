@@ -14,14 +14,20 @@ defmodule QRCode.DataEncoding.Common do
   end
 
   def break_up_into_byte(codeword, qr) do
+    max_capacity = max_capacity_in_bits(qr)
+
     codeword
-    |> add_terminator()
+    |> add_terminator(max_capacity)
     |> add_pad_bits()
-    |> add_pad_bytes(qr)
+    |> add_pad_bytes(max_capacity)
   end
 
-  defp add_terminator(codeword) do
-    <<codeword::bitstring, (<<0::size(4)>>)>>
+  defp add_terminator(codeword, max_capacity) do
+    case diff_total_number_and_bit_size_cw(codeword, max_capacity) do
+      0 -> codeword
+      x when x < 4 -> <<codeword::bitstring, (<<0::size(x)>>)>>
+      _ -> <<codeword::bitstring, (<<0::size(4)>>)>>
+    end
   end
 
   defp add_pad_bits(codeword) do
@@ -37,8 +43,8 @@ defmodule QRCode.DataEncoding.Common do
     end
   end
 
-  defp add_pad_bytes(codeword, qr) do
-    is_string_long_enough = diff_total_number_and_bit_size_cw(codeword, qr)
+  defp add_pad_bytes(codeword, max_capacity) do
+    is_string_long_enough = diff_total_number_and_bit_size_cw(codeword, max_capacity)
 
     fill_to_max =
       is_string_long_enough
@@ -59,7 +65,12 @@ defmodule QRCode.DataEncoding.Common do
     end)
   end
 
-  defp diff_total_number_and_bit_size_cw(codeword, qr) do
-    ErrorCorrection.total_data_codewords(qr) * 8 - bit_size(codeword)
+  defp diff_total_number_and_bit_size_cw(codeword, max_capacity)
+       when is_integer(max_capacity) and max_capacity > 0 and rem(max_capacity, 8) == 0 do
+    max_capacity - bit_size(codeword)
+  end
+
+  defp max_capacity_in_bits(qr) do
+    ErrorCorrection.total_data_codewords(qr) * 8
   end
 end
