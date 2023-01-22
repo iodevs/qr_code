@@ -119,6 +119,7 @@ defmodule ByteEncodingTest do
         %QR{
           ecc_level: level,
           version: version,
+          mode: :byte,
           orig: message
         }
       end

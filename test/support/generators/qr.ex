@@ -361,9 +361,26 @@ defmodule Generators.QR do
     end
   end
 
+  def alphanumeric(size) do
+    let charlist <- vector(size, character()) do
+      to_string(charlist)
+    end
+  end
+
   def get_capacity_for(_mode, _level, 0), do: 0
 
   def get_capacity_for(mode, level, version) do
     @capacities[mode][level][version]
+  end
+
+  defp character() do
+    oneof(
+      Enum.concat([
+        ?0..?9,
+        ?a..?z,
+        ?A..?Z,
+        [?\s, ?$, ?%, ?*, ?+, ?-, ?., ?/, ?:]
+      ])
+    )
   end
 end
