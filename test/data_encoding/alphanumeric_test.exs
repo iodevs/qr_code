@@ -57,6 +57,14 @@ defmodule DataEncoding.AlphanumericTest do
     end
   end
 
+  property "should fill pad bits" do
+    forall qr <- qr() do
+      qr
+      |> Alphanumeric.encode()
+      |> check_pad_bits()
+    end
+  end
+
   # Helpers
 
   defp check_mode_indicator(%QR{encoded: <<0b0010::size(4), _::bitstring>>}) do
@@ -84,13 +92,6 @@ defmodule DataEncoding.AlphanumericTest do
 
     <<_msg::size(msg_bitsize), rest::bitstring>> = rest
 
-    # assert match?(<<>>, rest) or
-    #          match?(<<0::size(1)>>, rest) or
-    #          match?(<<0::size(2)>>, rest) or
-    #          match?(<<0::size(3)>>, rest) or
-    #          match?(<<0::size(4)>>, rest) or
-    #          match?(<<0::size(4), _::bitstring>>, rest)
-
     case bit_size(rest) do
       0 ->
         assert match?(<<>>, rest)
@@ -100,6 +101,35 @@ defmodule DataEncoding.AlphanumericTest do
 
       _ ->
         assert match?(<<0::size(4), _::bitstring>>, rest)
+    end
+  end
+
+  defp check_pad_bits(%QR{version: version, encoded: encoded}) do
+    msg_len_bits = get_msg_len_bits(version)
+
+    <<0b0010::size(4), msg_len::size(msg_len_bits), rest::bitstring>> = encoded
+
+    msg_bitsize = msg_bitsize(msg_len)
+
+    <<_msg::size(msg_bitsize), rest::bitstring>> = rest
+
+    rest_size = bit_size(rest)
+
+    case {div(rest_size, 8), rem(rest_size, 8)} do
+      {0, 0} ->
+        assert match?(<<>>, rest)
+
+      {0, pad_bits} when pad_bits < 8 ->
+        assert match?(<<0::size(pad_bits)>>, rest)
+
+      {1, 0} ->
+        assert match?(<<0::size(8)>>, rest)
+
+      {pad_bytes, 0} ->
+        assert match?(<<0::size(8), _::size((pad_bytes - 1) * 8)>>, rest)
+
+      {pad_bytes, pad_bits} ->
+        assert match?(<<0::size(pad_bits), _::size(pad_bytes * 8)>>, rest)
     end
   end
 
