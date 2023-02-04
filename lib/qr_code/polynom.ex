@@ -6,7 +6,7 @@ defmodule QRCode.Polynom do
   alias QRCode.GaloisField, as: GF
   alias QRCode.GeneratorPolynomial, as: GP
 
-  use Bitwise
+  import Bitwise
 
   @spec div([GF.value()], GP.polynomial()) :: [GF.value()]
   def div(dividend, divisor) do
