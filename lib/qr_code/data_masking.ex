@@ -5,7 +5,7 @@ defmodule QRCode.DataMasking do
   modify the QR code to make it as easy for a QR code reader to scan
   as possible.
   """
-  use Bitwise
+  import Bitwise
 
   alias MatrixReloaded.Matrix
   alias QRCode.QR

@@ -18,7 +18,7 @@ defmodule QRCode.GeneratorPolynomial do
 
   alias QRCode.GaloisField, as: GField
 
-  use Bitwise
+  import Bitwise
 
   @type degree() :: 1..254
   @type polynomial() :: [GField.alpha()]
