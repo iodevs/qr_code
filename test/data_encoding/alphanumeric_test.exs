@@ -65,6 +65,14 @@ defmodule DataEncoding.AlphanumericTest do
     end
   end
 
+  property "should fill pad bytes" do
+    forall qr <- qr() do
+      qr
+      |> Alphanumeric.encode()
+      |> check_pad_bytes()
+    end
+  end
+
   # Helpers
 
   defp check_mode_indicator(%QR{encoded: <<0b0010::size(4), _::bitstring>>}) do
@@ -119,17 +127,74 @@ defmodule DataEncoding.AlphanumericTest do
       {0, 0} ->
         assert match?(<<>>, rest)
 
-      {0, pad_bits} when pad_bits < 8 ->
-        assert match?(<<0::size(pad_bits)>>, rest)
+      {0, terminator} when terminator <= 4 ->
+        # only terminator
+        assert match?(<<0::size(terminator)>>, rest)
+
+      {0, pad_bits} when pad_bits > 4 and pad_bits < 8 ->
+        # terminator + pad bits
+        assert match?(<<0::size(4), 0::size(pad_bits - 4)>>, rest)
 
       {1, 0} ->
+        # 4 bits terminator + 4 bits padding
         assert match?(<<0::size(8)>>, rest)
 
-      {pad_bytes, 0} ->
-        assert match?(<<0::size(8), _::size((pad_bytes - 1) * 8)>>, rest)
+      _ ->
+        # substract terminator
+        pad_bits = rem(rest_size - 4, 8)
+        assert match?(<<0::size(4), 0::size(pad_bits), _::bitstring>>, rest)
+    end
+  end
 
-      {pad_bytes, pad_bits} ->
-        assert match?(<<0::size(pad_bits), _::size(pad_bytes * 8)>>, rest)
+  defp check_pad_bytes(%QR{version: version, encoded: encoded}) do
+    msg_len_bits = get_msg_len_bits(version)
+
+    <<0b0010::size(4), msg_len::size(msg_len_bits), rest::bitstring>> = encoded
+
+    msg_bitsize = msg_bitsize(msg_len)
+
+    <<_msg::size(msg_bitsize), rest::bitstring>> = rest
+
+    pad_bytes = get_pad_bytes(rest)
+    pad_bytes_count = byte_size(pad_bytes)
+
+    case {div(pad_bytes_count, 2), rem(pad_bytes_count, 2)} do
+      {0, 0} ->
+        assert pad_bytes == <<>>
+
+      {x, 0} ->
+        assert pad_bytes ==
+                 <<236, 17>>
+                 |> List.duplicate(x)
+                 |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+
+      {x, 1} ->
+        assert pad_bytes ==
+                 <<236, 17>>
+                 |> List.duplicate(x)
+                 |> Enum.concat([<<236>>])
+                 |> Enum.reduce(<<>>, fn item, acc -> <<acc::bitstring, item::bitstring>> end)
+    end
+  end
+
+  defp get_pad_bytes(rest) do
+    rest_size = bit_size(rest)
+
+    case {div(rest_size, 8), rem(rest_size, 8)} do
+      {0, 0} ->
+        <<>>
+
+      {0, pad_bits} when pad_bits < 8 ->
+        <<>>
+
+      {1, 0} ->
+        <<>>
+
+      _ ->
+        # substract terminator
+        pad_bits = rem(rest_size - 4, 8)
+        <<0::size(4), 0::size(pad_bits), pad_bytes::bitstring>> = rest
+        pad_bytes
     end
   end
 
