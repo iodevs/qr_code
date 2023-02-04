@@ -43,7 +43,7 @@ You can also change the error correction level according to your needs. There ar
 > Be aware higher levels of error correction require more bytes, so the higher the error correction level,
 > the larger the QR code will have to be.
 
-We've just generated QR code and now we want to save it to some image file format with high quality. This library supports now two image types: `svg` and `png`. So basic using is following:
+We've just generated QR code and now we want to save it to some image file format with high quality. This library supports two image types: `svg` and `png`. So basic using is following:
 
 ```elixir
   iex> "Hello World"
@@ -55,12 +55,12 @@ We've just generated QR code and now we want to save it to some image file forma
 
 where we used an error correction level `:high`. Note the function `QRCode.render()` has default render set up to `:svg` with default `SvgSettings`. Similarly, if you want to export to png just use `QRCode.render(:png)` with/without `PngSettings`. Calling by `QRCode.save` function you save QR code to file `/path/to/file.type`. Also instead of saving QR code to file, you can use a function `QRCode.to_base64()` to encode QR to base 64.
 
-Also there are a few settings for svg and png:
+There are several options to change the appearance of svg or png:
 
 ### Svg settings
 
 ```elixir
-| Setting            | Type                   | Default value | Description                         |
+| Option             | Type                   | Default value | Description                         |
 |--------------------|------------------------|---------------|-------------------------------------|
 | scale              | positive integer       | 10            | changes size of rendered QR code    |
 | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
@@ -76,7 +76,7 @@ Notes:
   There are a few limitations:
 
   - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
-  - Be careful with the `size` of the embedded image, if you set it to big, it may not be readable by a QR reader.
+  - Pay attention to the `size` of the embedded image, if you put it too large, it may not be readable by the QR reader.
 
 - By `:structure` you can minify a final size of svg file or make it readable if you need. In the readable case, the file size can be slightly larger and the svg code is structured and thus more clearer.
 
@@ -109,7 +109,7 @@ Similarly, you can use `png` with/without `PngSettings`.
 ### Png settings
 
 ```elixir
-| Setting            | Type                   | Default value | Description                  |
+| Option            | Type                   | Default value | Description                  |
 |--------------------|------------------------|---------------|------------------------------|
 | scale              | positive integer       | 10            | changes size of rendered QR  |
 | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png |
