@@ -10,6 +10,7 @@
   },
 
   "skip_files": [
-    "lib/qr_code/error.ex"
+    "lib/qr_code/error.ex",
+    "test/support"
   ]
 }

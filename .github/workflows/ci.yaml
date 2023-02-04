@@ -4,8 +4,8 @@ on: push
 
 env:
   # OS: ubuntu-latest
-  OTP_VERSION: 24.0
-  ELIXIR_VERSION: 1.12
+  OTP_VERSION: 25.1.2
+  ELIXIR_VERSION: 1.14.1
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MIX_ENV: test
 
