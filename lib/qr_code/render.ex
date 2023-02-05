@@ -3,12 +3,15 @@ defmodule QRCode.Render do
   Render common module.
   """
 
+  @type image_format() :: :png | :svg
+
+  alias QRCode.QR
   alias QRCode.Render.{PngSettings, SvgSettings}
 
   @doc """
   Render QR matrix to `svg` or `png` binary representation with default settings.
   """
-  @spec render(Result.t(String.t(), binary()), :png | :svg) :: Result.t(String.t(), binary())
+  @spec render(QR.t(), image_format()) :: String.t()
   def render(qr, :svg) do
     render(qr, :svg, %SvgSettings{})
   end
@@ -44,8 +47,7 @@ defmodule QRCode.Render do
   | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR             |
   ```
   """
-  @spec render(Result.t(String.t(), binary()), atom(), SvgSettings.t() | PngSettings.t()) ::
-          Result.t(String.t(), binary())
+  @spec render(QR.t(), image_format(), SvgSettings.t() | PngSettings.t()) :: String.t()
   def render(qr, :svg, settings) do
     QRCode.Render.Svg.create(qr, settings)
   end
@@ -68,14 +70,10 @@ defmodule QRCode.Render do
   <img src="data:image/png; base64, encoded_png_qr_code" alt="QR code" />
   ```
   """
-  @spec to_base64(Result.t(String.t(), binary())) :: Result.t(String.t(), binary())
-  def to_base64({:ok, rendered_qr_matrix}) do
-    rendered_qr_matrix
-    |> Base.encode64()
-    |> Result.ok()
+  @spec to_base64(String.t()) :: String.t()
+  def to_base64(rendered_qr_matrix) do
+    Base.encode64(rendered_qr_matrix)
   end
-
-  def to_base64(error), do: error
 
   @doc """
   Saves rendered QR code to `svg` or `png` file. See a few examples below:
@@ -98,14 +96,11 @@ defmodule QRCode.Render do
   ```
   ![QR code color](docs/qrcode_color.png)
   """
-  @spec save(Result.t(any(), binary()), Path.t()) ::
-          Result.t(String.t() | File.posix() | :badarg | :terminated, Path.t())
-  def save({:ok, rendered_qr_matrix}, path_with_file_name) do
+  @spec save(String.t(), Path.t()) :: {:ok, Path.t()} | {:error, File.posix()}
+  def save(rendered_qr_matrix, path_with_file_name) do
     case File.write(path_with_file_name, rendered_qr_matrix) do
       :ok -> {:ok, path_with_file_name}
       err -> err
     end
   end
-
-  def save(error, _path_with_file_name), do: error
 end
