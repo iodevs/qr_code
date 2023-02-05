@@ -3,8 +3,6 @@ defmodule QRCodeTest do
 
   use ExUnit.Case
 
-  @dst_to_file "/tmp/hello.svg"
-
   describe "QRCode" do
     test "should create! QR" do
       rv = QRCode.create!("text")
