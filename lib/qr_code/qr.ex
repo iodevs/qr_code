@@ -107,7 +107,7 @@ defmodule QRCode.QR do
 
   For saving QR code to svg file, you have to render it first and then save it:
 
-      iex> qr = QRCode.QR.create("Hello World", :high)
+      iex> {:ok, qr} = QRCode.QR.create("Hello World", :high)
       iex> qr |> QRCode.render() |> QRCode.save("hello.svg")
       {:ok, "hello.svg"}
 
