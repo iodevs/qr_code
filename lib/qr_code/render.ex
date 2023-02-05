@@ -80,7 +80,7 @@ defmodule QRCode.Render do
 
   ```elixir
     iex> "Hello World"
-          |> QRCode.create(:high)
+          |> QRCode.create!(:high)
           |> QRCode.render(:svg)
           |> QRCode.save("/path/to/hello.svg")
     {:ok, "/path/to/hello.svg"}
@@ -89,7 +89,7 @@ defmodule QRCode.Render do
   ```elixir
     iex> png_settings = %QRCode.Render.PngSettings{qrcode_color: {17, 170, 136}}
     iex> "Hello World"
-          |> QRCode.create(:high)
+          |> QRCode.create!(:high)
           |> QRCode.render(:png, png_settings)
           |> QRCode.save("/tmp/to/hello.png")
     {:ok, "/path/to/hello.png"}
