@@ -71,7 +71,7 @@ defmodule QRCode.Placement do
 
   @correct_separator Vector.row(8)
 
-  @spec put_patterns(QR.t()) :: Result.t(String.t(), QR.t())
+  @spec put_patterns(QR.t()) :: {:ok, QR.t()} | {:error, String.t()}
   def put_patterns(%QR{version: version, message: message} = qr) when version(version) do
     size = (version - 1) * 4 + 21
 
@@ -87,7 +87,7 @@ defmodule QRCode.Placement do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  @spec replace_placeholders(QR.t()) :: Result.t(String.t(), QR.t())
+  @spec replace_placeholders(QR.t()) :: {:ok, QR.t()} | {:error, String.t()}
   def replace_placeholders(%QR{matrix: matrix, version: version} = qr) when version(version) do
     matrix
     |> add_finders(version)
@@ -99,7 +99,8 @@ defmodule QRCode.Placement do
     |> Result.map(fn matrix -> %{qr | matrix: matrix} end)
   end
 
-  @spec add_finders(Matrix.t(), QR.version(), Matrix.t()) :: Result.t(String.t(), Matrix.t())
+  @spec add_finders(Matrix.t(), QR.version(), Matrix.t()) ::
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_finders(matrix, version, finder \\ @correct_finder) do
     matrix
     |> Matrix.update(finder, {0, 0})
@@ -107,7 +108,8 @@ defmodule QRCode.Placement do
     |> Result.and_then(&Matrix.update(&1, finder, {4 * version + 10, 0}))
   end
 
-  @spec add_separators(Matrix.t(), QR.version(), Vector.t()) :: Result.t(String.t(), Matrix.t())
+  @spec add_separators(Matrix.t(), QR.version(), Vector.t()) ::
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_separators(matrix, version, row \\ @correct_separator) do
     col = Vector.transpose(row)
 
@@ -121,7 +123,7 @@ defmodule QRCode.Placement do
   end
 
   @spec add_reserved_areas(Matrix.t(), QR.version(), non_neg_integer()) ::
-          Result.t(String.t(), Matrix.t())
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_reserved_areas(matrix, version, val \\ 0)
 
   def add_reserved_areas(matrix, version, val) when version < 7 do
@@ -134,7 +136,7 @@ defmodule QRCode.Placement do
     |> add_reserve_via(version, val)
   end
 
-  @spec add_timings(Matrix.t(), QR.version()) :: Result.t(String.t(), Matrix.t())
+  @spec add_timings(Matrix.t(), QR.version()) :: {:ok, Matrix.t()} | {:error, String.t()}
   def add_timings(matrix, version) do
     row = get_timing_row(version)
 
@@ -142,7 +144,8 @@ defmodule QRCode.Placement do
     |> Result.and_then_x(&Matrix.update_col(&1, Vector.transpose(&2), {8, 6}))
   end
 
-  @spec add_timings(Matrix.t(), QR.version(), pos_integer()) :: Result.t(String.t(), Matrix.t())
+  @spec add_timings(Matrix.t(), QR.version(), pos_integer()) ::
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_timings(matrix, version, val) do
     size = 4 * version + 1
     row = size |> Vector.row(val)
@@ -152,7 +155,8 @@ defmodule QRCode.Placement do
     |> Result.and_then(&Matrix.update_col(&1, Vector.transpose(row), {8, 6}))
   end
 
-  @spec add_alignments(Matrix.t(), QR.version(), Matrix.t()) :: Result.t(String.t(), Matrix.t())
+  @spec add_alignments(Matrix.t(), QR.version(), Matrix.t()) ::
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_alignments(matrix, version, alignment \\ @correct_alignment)
   def add_alignments(matrix, 1, _alignment), do: Result.ok(matrix)
 
@@ -174,7 +178,7 @@ defmodule QRCode.Placement do
   end
 
   @spec add_dark_module(Matrix.t(), QR.version(), pos_integer()) ::
-          Result.t(String.t(), Matrix.t())
+          {:ok, Matrix.t()} | {:error, String.t()}
   def add_dark_module(matrix, version, val \\ 1) do
     Matrix.update_element(matrix, val, {4 * version + 9, 8})
   end

@@ -6,7 +6,7 @@ defmodule QRCode.Mode do
   alias QRCode.QR
   import QRCode.QR, only: [mode: 1]
 
-  @spec select(QR.t(), QR.mode()) :: Result.t(String.t(), QR.t())
+  @spec select(QR.t(), QR.mode()) :: {:ok, QR.t()} | {:error, String.t()}
   def select(qr, mode) when mode(mode) do
     qr
     |> put_mode(mode)
