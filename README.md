@@ -22,99 +22,106 @@ end
 
 ## Usage
 
-If you want to create QR code, just use the function `QRCode.create(your_string, level)`:
-
-```elixir
-  iex> QRCode.create("Hello World")
-  {:ok, %QRCode.QR{...}}
-```
-
-You can also change the error correction level according to your needs. There are four level of error corrections:
-
-```elixir
-  | Error Correction Level    | Error Correction Capability    |
-  |---------------------------|--------------------------------|
-  | :low (default value)      | recovers 7% of data            |
-  | :medium                   | recovers 15% of data           |
-  | :quartile                 | recovers 25% of data           |
-  | :high                     | recovers 30% of data           |
-```
-
-> Be aware higher levels of error correction require more bytes, so the higher the error correction level,
-> the larger the QR code will have to be.
-
-We've just generated QR code and now we want to save it to some image file format with high quality. This library supports two image types: `svg` and `png`. So basic using is following:
+If you want to create QR code, just simply use
 
 ```elixir
   iex> "Hello World"
-        |> QRCode.create(:high)
-        |> QRCode.render()
-        |> QRCode.save("/path/to/hello.svg")
-  {:ok, "/path/to/hello.svg"}
-```
-
-where we used an error correction level `:high`. Note the function `QRCode.render()` has default render set up to `:svg` with default `SvgSettings`. Similarly, if you want to export to png just use `QRCode.render(:png)` with/without `PngSettings`. Calling by `QRCode.save` function you save QR code to file `/path/to/file.type`. Also instead of saving QR code to file, you can use a function `QRCode.to_base64()` to encode QR to base 64.
-
-There are several options to change the appearance of svg or png:
-
-### Svg settings
-
-```elixir
-| Option             | Type                   | Default value | Description                         |
-|--------------------|------------------------|---------------|-------------------------------------|
-| scale              | positive integer       | 10            | changes size of rendered QR code    |
-| background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
-| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
-| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
-| image              | {string, size} or nil  | nil           | puts the image to the center of svg |
-| structure          | :minify or :readable   | :minify       | minifies or makes readable svg file |
-```
-
-Notes:
-
-- `:image` inserts image `/path/to/image.type` with `size`, this number must be positive integer.
-  There are a few limitations:
-
-  - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
-  - Pay attention to the `size` of the embedded image, if you put it too large, it may not be readable by the QR reader.
-
-- By `:structure` you can minify a final size of svg file or make it readable if you need. In the readable case, the file size can be slightly larger and the svg code is structured and thus more clearer.
-
-Let's see an example with embedded image below:
-
-```elixir
-  iex> alias QRCode.Render.SvgSettings
-  iex> image = {"/docs/elixir.svg", 100}
-  iex> qr_color = {17, 170, 136}
-  iex> svg_settings = %SvgSettings{qrcode_color: qr_color, image: image, structure: :readable}
-  %QRCode.Render.SvgSettings{
-    background_color: "#ffffff",
-    background_opacity: nil,
-    image: {"/docs/elixir.svg", 100},
-    qrcode_color: {17, 170, 136},
-    scale: 10,
-    structure: :readable
-  }
-  iex> "your_string"
         |> QRCode.create()
-        |> QRCode.render(:svg, svg_settings)
-        |> QRCode.save("/tmp/qr-with-image.svg")
-  {:ok, "/tmp/qr-with-image.svg"}
+        |> QRCode.render()
+        |> QRCode.save("/path/to/qr_code.svg")
+  {:ok, "/path/to/qr_code.svg"}
 ```
 
-![QR code color](docs/qrcode_color_with_image.svg)
+Let's look at close on these functions:
 
-Similarly, you can use `png` with/without `PngSettings`.
+## `QRCode.create(your_string, level, mode)`
 
-### Png settings
+- Level is the error correction level and you can change it according to your needs. There are four level of error corrections:
 
-```elixir
-| Option            | Type                   | Default value | Description                  |
-|--------------------|------------------------|---------------|------------------------------|
-| scale              | positive integer       | 10            | changes size of rendered QR  |
-| background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png |
-| qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR             |
-```
+  ```elixir
+    | Error Correction Level    | Error Correction Capability    |
+    |---------------------------|--------------------------------|
+    | :low (default value)      | recovers 7% of data            |
+    | :medium                   | recovers 15% of data           |
+    | :quartile                 | recovers 25% of data           |
+    | :high                     | recovers 30% of data           |
+  ```
+
+  > Be aware higher levels of error correction require more bytes, so the higher the error correction level,
+  > the larger the QR code will have to be.
+
+- Mode, you can select `:byte` (default value) or `:alphanumeric`. If you are interested in the difference between these modes, check out the link below in the References.
+
+## `QRCode.render({:ok, qr} | {:error, msg}, render_module, render_settings)`
+
+- render_module, there are two render modules which you can use: `:svg` (default value) or `:png`. It means that the QR code will be rendered to SVG or PNG structure. You can set an appearance of QR code by a several properties in render settings like color, size, etc...
+
+- render_settings, see below in tables default settings for `:svg` and `:png`.
+
+  Note the function `QRCode.render()` has default render set up to `:svg` with default `SvgSettings`. Similarly, if you want to export to png just use `QRCode.render(:png)` with/without `PngSettings`.
+
+  ### Svg settings
+
+  ```elixir
+  | Option             | Type                   | Default value | Description                         |
+  |--------------------|------------------------|---------------|-------------------------------------|
+  | scale              | positive integer       | 10            | changes size of rendered QR code    |
+  | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
+  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
+  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
+  | image              | {string, size} or nil  | nil           | puts the image to the center of svg |
+  | structure          | :minify or :readable   | :minify       | minifies or makes readable svg file |
+  ```
+
+  Notes:
+
+  - `:image` inserts image `/path/to/image.format` with `size`, this number must be positive integer.
+    There are a few limitations:
+
+    - The only image formats SVG software must support are JPEG, PNG, and other SVG files, see [MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image).
+    - Pay attention to the `size` of the embedded image, if you put it too large, it may not be readable by the QR reader.
+
+  - By `:structure` you can minify a final size of svg file or make it readable if you need. In the readable case, the file size can be slightly larger and the svg code is structured and thus more clearer.
+
+  Let's see an example with embedded image below:
+
+  ```elixir
+    iex> alias QRCode.Render.SvgSettings
+    iex> image = {"/docs/elixir.svg", 100}
+    iex> qr_color = {17, 170, 136}
+    iex> svg_settings = %SvgSettings{qrcode_color: qr_color, image: image, structure: :readable}
+    %QRCode.Render.SvgSettings{
+      background_color: "#ffffff",
+      background_opacity: nil,
+      image: {"/docs/elixir.svg", 100},
+      qrcode_color: {17, 170, 136},
+      scale: 10,
+      structure: :readable
+    }
+    iex> "your_string"
+          |> QRCode.create()
+          |> QRCode.render(:svg, svg_settings)
+          |> QRCode.save("/tmp/qr-with-image.svg")
+    {:ok, "/tmp/qr-with-image.svg"}
+  ```
+
+  ![QR code color](docs/qrcode_color_with_image.svg)
+
+  Similarly, you can use `:png` with/without `PngSettings`.
+
+  ### Png settings
+
+  ```elixir
+  | Option             | Type                   | Default value | Description                  |
+  |--------------------|------------------------|---------------|------------------------------|
+  | scale              | positive integer       | 10            | changes size of rendered QR  |
+  | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of png |
+  | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR             |
+  ```
+
+## `QRCode.save({:ok, rendered_qr} | {:error, msg}, "/path/to/qr_code")`
+
+- Calling by `QRCode.save` function you save QR code to file `/path/to/qr_code`. Also instead of saving QR code to file, you can use a function `QRCode.to_base64()` to encode QR to base 64.
 
 ## Limitations
 
