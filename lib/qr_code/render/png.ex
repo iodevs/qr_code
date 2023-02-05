@@ -10,14 +10,10 @@ defmodule QRCode.Render.Png do
   @doc """
   Create Png image from QR matrix as binary.
   """
-  @spec create(Result.t(String.t(), QR.t()), PngSettings.t()) :: Result.t(String.t(), binary())
-  def create({:ok, %QR{matrix: matrix}}, settings) do
-    matrix
-    |> create_png(settings)
-    |> Result.ok()
+  @spec create(QR.t(), PngSettings.t()) :: String.t()
+  def create(%QR{matrix: matrix}, settings) do
+    create_png(matrix, settings)
   end
-
-  def create(error, _settings), do: error
 
   # Private
 

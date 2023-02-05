@@ -27,22 +27,14 @@ defmodule QRCode.Render.Svg do
   Create Svg structure from QR matrix as binary. This binary contains svg
   attributes and svg elements.
   """
-  @spec create(Result.t(String.t(), QR.t()), SvgSettings.t()) :: Result.t(String.t(), binary())
-  def create({:ok, %QR{matrix: matrix}}, settings) do
-    matrix
-    |> create_svg(settings)
-    |> Result.ok()
-  end
-
-  def create(error, _settings), do: error
-
-  # Private
-
-  defp create_svg(matrix, settings) do
+  @spec create(QR.t(), SvgSettings.t()) :: String.t()
+  def create(%QR{matrix: matrix}, settings) do
     matrix
     |> construct_body(%__MODULE__{}, settings)
     |> construct_svg(settings)
   end
+
+  # Private
 
   defp construct_body(matrix, svg, %SvgSettings{scale: scale}) do
     {rank_matrix, _} = Matrix.size(matrix)

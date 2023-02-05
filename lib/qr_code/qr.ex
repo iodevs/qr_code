@@ -107,13 +107,13 @@ defmodule QRCode.QR do
 
   For saving QR code to svg file, you have to render it first and then save it:
 
-      iex> qr = QRCode.QR.create("Hello World", :high)
+      iex> {:ok, qr} = QRCode.QR.create("Hello World", :high)
       iex> qr |> QRCode.render() |> QRCode.save("hello.svg")
       {:ok, "hello.svg"}
 
   The svg file will be saved into your project directory.
   """
-  @spec create(String.t(), level(), mode()) :: Result.t(String.t(), t())
+  @spec create(String.t(), level(), mode()) :: {:ok, t()} | {:error, String.t()}
   def create(orig, level \\ :low, mode \\ :byte) when level(level) and mode(mode) do
     %__MODULE__{orig: orig, ecc_level: level}
     |> QRCode.Mode.select(mode)

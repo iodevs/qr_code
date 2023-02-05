@@ -1,9 +1,7 @@
 defmodule QRCodeTest do
   @moduledoc false
 
-  use ExUnit.Case, async: true
-
-  @dst_to_file "/tmp/hello.svg"
+  use ExUnit.Case
 
   describe "QRCode" do
     test "should create! QR" do
@@ -24,27 +22,36 @@ defmodule QRCodeTest do
     test "should fail to save qr code bc of wrong file name" do
       rv =
         "text"
-        |> QRCode.create()
+        |> QRCode.create!()
         |> QRCode.render()
         |> QRCode.save("/")
 
       assert rv == {:error, :eisdir}
     end
 
-    test "should fail to save qr code to file" do
-      rv =
-        Result.error("Error")
-        |> QRCode.save(@dst_to_file)
+    test "should raise error when embedded image has not supported mime type" do
+      assert_raise ArgumentError, "Bad embedded image format!", fn ->
+        wrong_img_format = "/tmp/embedded_img.xxx"
+        text = "HELLO WOLRD"
 
-      assert rv == {:error, "Error"}
-    end
+        on_exit(fn ->
+          :ok = File.rm(wrong_img_format)
+        end)
 
-    test "should fail to encode qr to base 64" do
-      rv =
-        Result.error("Error")
-        |> QRCode.to_base64()
+        {:ok, _} =
+          text
+          |> QRCode.create!()
+          |> QRCode.render(:png)
+          |> QRCode.save(wrong_img_format)
 
-      assert rv == {:error, "Error"}
+        settings = %QRCode.Render.SvgSettings{
+          image: {wrong_img_format, 100}
+        }
+
+        text
+        |> QRCode.create!()
+        |> QRCode.render(:svg, settings)
+      end
     end
   end
 end
