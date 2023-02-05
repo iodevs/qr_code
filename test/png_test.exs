@@ -11,7 +11,7 @@ defmodule PngTest do
   describe "Png" do
     setup do
       @text
-      |> QRCode.create()
+      |> QRCode.create!()
       |> QRCode.render(:png)
       |> QRCode.save(@dst_to_file)
 
@@ -20,22 +20,14 @@ defmodule PngTest do
       end)
     end
 
-    test "render should fail with error" do
-      rv =
-        Result.error("Error")
-        |> QRCode.render(:png)
-
-      assert rv == {:error, "Error"}
-    end
-
     test "should save qr code to png file" do
       assert File.exists?(@dst_to_file)
     end
 
     test "should create png from qr matrix" do
-      {:ok, expected} =
+      expected =
         @text
-        |> QRCode.create()
+        |> QRCode.create!()
         |> QRCode.render(:png)
 
       rv =
@@ -46,35 +38,33 @@ defmodule PngTest do
     end
 
     test "should encode png binary to base64" do
-      {:ok, expected} =
+      rendered_qr =
         @text
-        |> QRCode.create()
+        |> QRCode.create!()
         |> QRCode.render(:png)
 
-      {:ok, rv} =
-        @text
-        |> QRCode.create()
-        |> QRCode.render(:png)
+      rv =
+        rendered_qr
         |> QRCode.to_base64()
-        |> Result.and_then(&Base.decode64/1)
+        |> Base.decode64!()
 
-      assert expected == rv
+      assert rv == rendered_qr
     end
 
     test "file should contain different qr code color than black" do
       expected =
         @text
-        |> QRCode.create()
+        |> QRCode.create!()
         |> QRCode.render(
           :png,
           %PngSettings{qrcode_color: {17, 170, 136}}
         )
 
-      QRCode.save(expected, @dst_to_file)
+      {:ok, _} = QRCode.save(expected, @dst_to_file)
 
       rv =
         @dst_to_file
-        |> File.read()
+        |> File.read!()
 
       assert expected == rv
     end
