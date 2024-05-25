@@ -134,7 +134,7 @@ defmodule QRCode.Render.Svg do
   defp put_image({base64_encoded_image_binary, mime_type_atom, size})
        when is_binary(base64_encoded_image_binary) and 0 < size do
     mime_type = mime_type_atom |> to_string() |> valid_mime_type()
-    href = build_encoded_binary(encoded_image, mime_type)
+    href = build_encoded_binary(base64_encoded_image_binary, mime_type)
 
     {:image,
      %{
