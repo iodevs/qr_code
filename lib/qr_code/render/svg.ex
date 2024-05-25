@@ -118,9 +118,27 @@ defmodule QRCode.Render.Svg do
   defp put_image(nil), do: ""
 
   defp put_image({path_to_image, size}) when is_binary(path_to_image) and 0 < size do
+    href = encode_embedded_image(path_to_image)
+
     {:image,
      %{
-       href: encode_embedded_image(path_to_image),
+       href: href,
+       height: size,
+       width: size,
+       x: "50%",
+       y: "50%",
+       transform: "translate(-#{size / 2}, -#{size / 2})"
+     }, nil}
+  end
+
+  defp put_image({base64_encoded_image_binary, mime_type_atom, size})
+       when is_binary(base64_encoded_image_binary) and 0 < size do
+    mime_type = mime_type_atom |> to_string() |> valid_mime_type()
+    href = build_encoded_binary(encoded_image, mime_type)
+
+    {:image,
+     %{
+       href: href,
        height: size,
        width: size,
        x: "50%",
@@ -140,17 +158,17 @@ defmodule QRCode.Render.Svg do
       |> Path.basename()
       |> String.split(".")
 
-    "data:image/#{mime_type(image_type)}; base64, #{encoded_image}"
+    build_encoded_binary(encoded_image, valid_mime_type(image_type))
   end
 
-  defp mime_type("png"), do: "png"
-  defp mime_type("svg"), do: "svg+xml"
-
-  defp mime_type(type) when type in ["jpg", "jpeg"] do
-    "jpeg"
+  defp build_encoded_binary(encoded_image, mime_type) do
+    "data:image/#{mime_type}; base64, #{encoded_image}"
   end
 
-  defp mime_type(_type), do: raise(ArgumentError, "Bad embedded image format!")
+  defp valid_mime_type("png"), do: "png"
+  defp valid_mime_type("svg"), do: "svg+xml"
+  defp valid_mime_type(type) when type in ["jpg", "jpeg"], do: "jpeg"
+  defp valid_mime_type(_type), do: raise(ArgumentError, "Bad embedded image format!")
 
   defp find_nonzero_element(matrix) do
     matrix
