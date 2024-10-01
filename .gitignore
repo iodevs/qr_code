@@ -34,3 +34,4 @@ tags
 .projections.json
 
 .elixir_ls/
+.DS_Store
