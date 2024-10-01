@@ -66,6 +66,7 @@ There are several options to change the appearance of svg or png:
 | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
 | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
 | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
+| flatten            | boolean                | false         | renders path data instead of rects  |                                     |
 | image              | {string, size} or nil  | nil           | puts the image to the center of svg |
 | structure          | :minify or :readable   | :minify       | minifies or makes readable svg file |
 ```

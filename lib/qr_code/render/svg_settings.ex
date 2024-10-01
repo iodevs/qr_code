@@ -17,6 +17,7 @@ defmodule QRCode.Render.SvgSettings do
   @type background_opacity :: ExMaybe.t(float())
   @type background_color :: String.t() | tuple
   @type qrcode_color :: String.t() | tuple
+  @type flatten :: boolean()
   @type structure :: :minify | :readable
 
   @type t :: %__MODULE__{
@@ -25,6 +26,7 @@ defmodule QRCode.Render.SvgSettings do
           background_opacity: background_opacity,
           background_color: background_color,
           qrcode_color: qrcode_color,
+          flatten: flatten,
           structure: structure
         }
 
@@ -33,5 +35,6 @@ defmodule QRCode.Render.SvgSettings do
             background_opacity: nil,
             background_color: "#ffffff",
             qrcode_color: "#000000",
+            flatten: false,
             structure: :minify
 end

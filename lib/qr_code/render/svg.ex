@@ -44,7 +44,7 @@ defmodule QRCode.Render.Svg do
     |> construct_svg(settings)
   end
 
-  defp construct_body(matrix, svg, %SvgSettings{scale: scale}) do
+  defp construct_body(matrix, svg, %SvgSettings{scale: scale, flatten: flatten}) do
     {rank_matrix, _} = Matrix.size(matrix)
 
     %{
@@ -52,7 +52,7 @@ defmodule QRCode.Render.Svg do
       | body:
           matrix
           |> find_nonzero_element()
-          |> Enum.map(&create_rect(&1, scale)),
+          |> Enum.map(&create_body(&1, scale, flatten)),
         rank_matrix: rank_matrix
     }
   end
@@ -69,6 +69,7 @@ defmodule QRCode.Render.Svg do
            background_color: bg,
            image: image,
            qrcode_color: qc,
+           flatten: flatten,
            scale: scale,
            structure: structure
          }
@@ -79,12 +80,11 @@ defmodule QRCode.Render.Svg do
        xlink: xlink,
        width: rank_matrix * scale,
        height: rank_matrix * scale
-     }, [background_rect(bg, bg_tr), to_group(body, qc), put_image(image)]}
+     }, [background_rect(bg, bg_tr), body_type(body, qc, flatten), put_image(image)]}
     |> XmlBuilder.generate(format: format(structure))
   end
 
   # Helpers
-
   defp background_settings(color) do
     %{
       width: "100%",
@@ -93,8 +93,15 @@ defmodule QRCode.Render.Svg do
     }
   end
 
-  defp create_rect({x_pos, y_pos}, scale) do
+  defp body_type(body, qc, false), do: to_group(body, qc)
+  defp body_type(body, qc, true), do: to_path(body, qc)
+
+  defp create_body({x_pos, y_pos}, scale, false) do
     {:rect, %{width: scale, height: scale, x: scale * x_pos, y: scale * y_pos}, nil}
+  end
+
+  defp create_body({x_pos, y_pos}, scale, true) do
+    ~s(M#{scale * x_pos} #{scale * y_pos}h#{scale}v#{scale}H#{scale * x_pos}z)
   end
 
   defp background_rect(color, nil) do
@@ -113,6 +120,10 @@ defmodule QRCode.Render.Svg do
 
   defp to_group(body, color) do
     {:g, %{fill: to_hex(color)}, body}
+  end
+
+  defp to_path(body, color) do
+    {:path, %{fill: to_hex(color), d: body}, nil}
   end
 
   defp put_image(nil), do: ""
