@@ -82,7 +82,6 @@ defmodule QRCode.MixProject do
     [
       plt_add_apps: [:mix, :ex_unit],
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-      ignore_warnings: "dialyzer.ignore-warnings",
       flags: [
         :error_handling,
         :no_opaque
