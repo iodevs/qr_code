@@ -63,6 +63,8 @@ There are several options to change the appearance of svg or png:
 | Option             | Type                   | Default value | Description                         |
 |--------------------|------------------------|---------------|-------------------------------------|
 | scale              | positive integer       | 10            | changes size of rendered QR code    |
+| class              | string                 | ""            | add a CSS class to the svg tag      |
+| scale              | positive integer       | 10            | changes size of rendered QR code    |
 | background_opacity | nil or 0.0 <= x <= 1.0 | nil           | sets background opacity of svg      |
 | background_color   | string or {r, g, b}    | "#ffffff"     | sets background color of svg        |
 | qrcode_color       | string or {r, g, b}    | "#000000"     | sets color of QR                    |
