@@ -21,6 +21,7 @@ defmodule QRCode.Render.SvgSettings do
   @type structure :: :minify | :readable
 
   @type t :: %__MODULE__{
+          class: String.t(),
           scale: integer,
           image: image,
           background_opacity: background_opacity,
@@ -36,5 +37,6 @@ defmodule QRCode.Render.SvgSettings do
             background_color: "#ffffff",
             qrcode_color: "#000000",
             flatten: false,
-            structure: :minify
+            structure: :minify,
+            class: ""
 end
