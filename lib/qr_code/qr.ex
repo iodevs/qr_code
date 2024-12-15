@@ -44,8 +44,8 @@ defmodule QRCode.QR do
 
   defguard level(lvl) when lvl in @levels
   defguard mode(m) when m in @modes
-  defguard version(v) when v in 1..40
-  defguard masking(m) when m in 0..7
+  defguard version(v) when v in 1..40//1
+  defguard masking(m) when m in 0..7//1
 
   @doc """
   Creates QR code. You can change the error correction level according to your needs.
