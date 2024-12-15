@@ -15,7 +15,7 @@ defmodule PlacementTest do
   describe "Placement" do
     test "should check if finder patterns have correct position at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -34,7 +34,7 @@ defmodule PlacementTest do
 
     test "should check if separator patterns have correct position at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -53,7 +53,7 @@ defmodule PlacementTest do
 
     test "should check if reserved areas have correct position at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -72,7 +72,7 @@ defmodule PlacementTest do
 
     test "should check if timing patterns have correct position at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -91,7 +91,7 @@ defmodule PlacementTest do
 
     test "should check if alignment patterns have correct positions at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -110,7 +110,7 @@ defmodule PlacementTest do
 
     test "should check if dark modules have correct position at qr matrix" do
       tasks =
-        for version <- 1..40 do
+        for version <- 1..40//1 do
           Task.async(fn ->
             size = 4 * version + 17
 
@@ -143,7 +143,7 @@ defmodule PlacementTest do
     size = 4 * version + 16
 
     {:ok, [hd | rest]} =
-      size..7
+      size..7//-1
       |> Enum.take_every(2)
       |> Enum.concat([5, 3, 1])
       |> Enum.reverse()

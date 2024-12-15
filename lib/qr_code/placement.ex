@@ -180,7 +180,7 @@ defmodule QRCode.Placement do
   end
 
   defp fill_matrix_by_message(matrix, size, message) do
-    (size - 1)..7
+    (size - 1)..7//-1
     |> Enum.take_every(2)
     |> Enum.concat([5, 3, 1])
     |> Enum.map_reduce({matrix, message}, fn col, acc ->

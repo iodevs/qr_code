@@ -272,7 +272,7 @@ defmodule QRCode.GaloisField do
       2
   """
   @spec to_i(alpha()) :: value()
-  def to_i(alpha) when alpha in 0..254 do
+  def to_i(alpha) when alpha in 0..254//1 do
     @gf_table
     |> Enum.find(fn {_i, a} -> alpha == a end)
     |> first()
@@ -285,7 +285,7 @@ defmodule QRCode.GaloisField do
       1
   """
   @spec to_a(value()) :: alpha()
-  def to_a(integer) when integer in 1..255 do
+  def to_a(integer) when integer in 1..255//1 do
     @gf_table
     |> Enum.find(fn {i, _a} -> integer == i end)
     |> second()

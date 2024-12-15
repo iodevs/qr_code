@@ -11,7 +11,7 @@ defmodule GeneratorPolynomialTest do
     forall degree <- integer(1, 254) do
       poly = GP.create(degree)
 
-      assert Enum.all?(poly, fn x -> x in 0..254 end)
+      assert Enum.all?(poly, fn x -> x in 0..254//1 end)
     end
   end
 

@@ -25,7 +25,7 @@ defmodule QRCode.DataMasking do
 
   @spec masking_matrices(Matrix.t()) :: Enumerable.t()
   def masking_matrices(matrix) do
-    Stream.map(0..7, fn num -> {num, make_mask_pattern(matrix, num)} end)
+    Stream.map(0..7//1, fn num -> {num, make_mask_pattern(matrix, num)} end)
   end
 
   @spec total_penalties(Enumerable.t()) :: Enumerable.t()
@@ -44,7 +44,7 @@ defmodule QRCode.DataMasking do
 
   @spec total_penalty(Matrix.t()) :: pos_integer()
   def total_penalty(matrix) do
-    Enum.reduce(1..4, 0, fn pen, sum -> penalty(matrix, pen) + sum end)
+    Enum.reduce(1..4//1, 0, fn pen, sum -> penalty(matrix, pen) + sum end)
   end
 
   @spec penalty(Matrix.t(), 1 | 2 | 3 | 4) :: non_neg_integer()
