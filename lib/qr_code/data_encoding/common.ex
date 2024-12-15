@@ -57,7 +57,7 @@ defmodule QRCode.DataEncoding.Common do
   end
 
   defp add_specification(fill_to_max) do
-    1..fill_to_max
+    1..fill_to_max//1
     |> Enum.map(fn x -> rem(x, 2) end)
     |> Enum.reduce(<<>>, fn
       x, acc when x == 0 -> acc <> <<17>>

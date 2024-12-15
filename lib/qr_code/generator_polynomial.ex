@@ -30,7 +30,7 @@ defmodule QRCode.GeneratorPolynomial do
       [0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45]
   """
   @spec create(degree()) :: polynomial()
-  def create(degree) when is_integer(degree) and degree in 1..254 do
+  def create(degree) when is_integer(degree) and degree in 1..254//1 do
     degree
     |> roots()
     |> Enum.reduce(&multiply/2)
