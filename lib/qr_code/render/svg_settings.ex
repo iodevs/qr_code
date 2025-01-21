@@ -19,6 +19,7 @@ defmodule QRCode.Render.SvgSettings do
   @type qrcode_color :: String.t() | tuple
   @type flatten :: boolean()
   @type structure :: :minify | :readable
+  @type quiet_zone :: integer
 
   @type t :: %__MODULE__{
           scale: integer,
@@ -27,7 +28,8 @@ defmodule QRCode.Render.SvgSettings do
           background_color: background_color,
           qrcode_color: qrcode_color,
           flatten: flatten,
-          structure: structure
+          structure: structure,
+          quiet_zone: quiet_zone
         }
 
   defstruct scale: 10,
@@ -36,5 +38,6 @@ defmodule QRCode.Render.SvgSettings do
             background_color: "#ffffff",
             qrcode_color: "#000000",
             flatten: false,
-            structure: :minify
+            structure: :minify,
+            quiet_zone: 4
 end
