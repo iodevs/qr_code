@@ -19,11 +19,6 @@ defmodule SvgTest do
       |> QRCode.render(:svg, %SvgSettings{structure: :readable})
       |> QRCode.save(@dst_to_file)
 
-      @text
-      |> QRCode.create()
-      |> QRCode.render(:svg, %SvgSettings{structure: :readable})
-      |> QRCode.save("test.svg")
-
       on_exit(fn ->
         :ok = File.rm(@dst_to_file)
       end)
