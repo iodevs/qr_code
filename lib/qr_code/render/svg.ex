@@ -6,6 +6,7 @@ defmodule QRCode.Render.Svg do
   alias MatrixReloaded.Matrix
   alias QRCode.QR
   alias QRCode.Render.SvgSettings
+  alias QRCode.MatrixHelper
 
   @type t :: %__MODULE__{
           xmlns: String.t(),
@@ -30,6 +31,7 @@ defmodule QRCode.Render.Svg do
   @spec create(Result.t(String.t(), QR.t()), SvgSettings.t()) :: Result.t(String.t(), binary())
   def create({:ok, %QR{matrix: matrix}}, settings) do
     matrix
+    |> MatrixHelper.surround_matrix(settings.quiet_zone, 0)
     |> create_svg(settings)
     |> Result.ok()
   end

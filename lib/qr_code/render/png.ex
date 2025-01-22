@@ -6,6 +6,7 @@ defmodule QRCode.Render.Png do
   alias MatrixReloaded.Matrix
   alias QRCode.QR
   alias QRCode.Render.PngSettings
+  alias QRCode.MatrixHelper
 
   @doc """
   Create Png image from QR matrix as binary.
@@ -26,15 +27,17 @@ defmodule QRCode.Render.Png do
          %PngSettings{
            scale: scale,
            background_color: background_color,
-           qrcode_color: qrcode_color
+           qrcode_color: qrcode_color,
+           quiet_zone: quiet_zone
          }
        ) do
     {rows, cols} = Matrix.size(matrix)
-    height = rows * scale
-    width = cols * scale
+    height = (rows + 2 * quiet_zone) * scale
+    width = (cols + 2 * quiet_zone) * scale
 
     bitmap =
       matrix
+      |> MatrixHelper.surround_matrix(quiet_zone, 0)
       |> rescale_rows(scale)
       |> List.flatten()
       |> rescale_cols_and_put_colors(scale, to_rgb(background_color), to_rgb(qrcode_color))
@@ -71,4 +74,6 @@ defmodule QRCode.Render.Png do
     Base.decode16!(c, case: :mixed)
     |> :binary.decode_unsigned()
   end
+
+
 end
