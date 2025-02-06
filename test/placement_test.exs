@@ -143,7 +143,7 @@ defmodule PlacementTest do
     size = 4 * version + 16
 
     {:ok, [hd | rest]} =
-      size..7
+      size..7//-1
       |> Enum.take_every(2)
       |> Enum.concat([5, 3, 1])
       |> Enum.reverse()
