@@ -71,15 +71,16 @@ defmodule QRCode.Render.Svg do
            qrcode_color: qc,
            flatten: flatten,
            scale: scale,
-           structure: structure
+           structure: structure,
+           class: class
          }
        ) do
     {:svg,
      %{
        xmlns: xmlns,
        xlink: xlink,
-       width: rank_matrix * scale,
-       height: rank_matrix * scale
+       viewBox: "0 0 #{rank_matrix * scale} #{rank_matrix * scale}",
+       class: class
      }, [background_rect(bg, bg_tr), body_type(body, qc, flatten), put_image(image)]}
     |> XmlBuilder.generate(format: format(structure))
   end
