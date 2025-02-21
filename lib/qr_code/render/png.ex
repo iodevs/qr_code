@@ -74,6 +74,4 @@ defmodule QRCode.Render.Png do
     Base.decode16!(c, case: :mixed)
     |> :binary.decode_unsigned()
   end
-
-
 end
